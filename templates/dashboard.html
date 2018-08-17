@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GNPS MASST - Mass BLAST</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+
+
+
+    <!--
+      DO NOT SIMPLY COPY THOSE LINES. Download the JS and CSS files from the
+      latest release (https://github.com/enyo/dropzone/releases/latest), and
+      host them yourself!
+    -->
+    <script src="https://rawgit.com/enyo/dropzone/master/dist/dropzone.js"></script>
+    <link rel="stylesheet" href="https://rawgit.com/enyo/dropzone/master/dist/dropzone.css">
+
+    <style>
+        .dropzone { border: 2px dashed #0087F7; border-radius: 5px; background: white; margin: 20px}
+        .dropzone .dz-message { font-weight: 400; }
+        .dropzone .dz-message .note { font-size: 0.8em; font-weight: 200; display: block; margin-top: 1.4rem; }
+        .container-fluid { min-height: 100%; height: 100%;}
+
+
+    </style>
+
+</head>
+
+<body>
+    <!-- A grey horizontal navbar that becomes vertical on small screens -->
+    <nav class="navbar navbar-expand-sm bg-light navbar-light">
+        <a class="navbar-brand" href="https://gnps.ucsd.edu">
+            <img src="/static/img/GNPS_logo.png" alt="Logo" style="width:120px;">
+        </a>
+
+      <!-- Links -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/">GNPS MASST - Mass BLAST</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://ccms-ucsd.github.io/GNPSDocumentation/molblast/">Documentation</a>
+        </li>
+      </ul>
+
+    </nav>
+
+
+    <div>
+
+
+        <div class="container-fluid">
+            <br>
+            <br>
+            <div class="row">
+              <div class="col-sm"></div>
+              <div class="col-sm text-center">
+                  <h2>GNPS MASST - Mass BLAST</h2>
+              </div>
+              <div class="col-sm"></div>
+            </div>
+
+            <br>
+            <div class="row">
+              <div class="col-sm"></div>
+              <div class="col-sm">
+                      <p>
+                          This interface enables you to search a single MS/MS spectrum against public GNPS spectral libraries and all public MS/MS datasets. Find exactly in what contexts your molecule has been previously observed.
+                        <br>
+                      </p>
+              </div>
+              <div class="col-sm"></div>
+            </div>
+
+            <br>
+
+            <form  action="/submit" method="post">
+                <div class="row">
+
+                    <div class="col-sm">
+                        <h2> Search Parameters </h2>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Minimum Cosine Score</label>
+                            <input type="number" class="form-control" name="cosinescore" value="0.7">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Minimum Matched Peaks</label>
+                            <input type="number" class="form-control" name="matchedpeaks" value="6">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Parent Mass Tolerance</label>
+                            <input type="number" class="form-control" name="pmtolerance" value="2.0">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Fragment Mass Tolerance</label>
+                            <input type="number" class="form-control" name="fragmenttolerance" value="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Analog Search</label>
+                            <select class="form-control" name="analogsearch">
+                                <option>No</option>
+                                <option>Yes</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-sm">
+                        <h2> Spectrum Peaks </h2>
+                        <div class="form-group">
+                            <label for="precursormz">Precursor M/Z</label>
+                            <input type="number" step=0.01 class="form-control" name="precursormz" placeholder="311.97">
+                        </div>
+                        <div class="form-group">
+                            <label for="peaks">Peaks</label>
+                            <textarea class="form-control" name="peaks" rows="12" placeholder='Enter peaks here in the follow format "mass intensity", one per line separated by white space (space or tab).&#10;For Example &#10;100.0 10&#10;100 23'></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-sm">
+                        <h2> Reporting Information </h2>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Email address</label>
+                            <input type="email" class="form-control" name="email" placeholder="name@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">GNPS Login</label>
+                            <input type="text" class="form-control" name="login" placeholder="GNPS Username (optional)">
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">GNPS Password</label>
+                            <input type="password" class="form-control" name="password" placeholder="GNPS Password (optional)">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="row">
+                    <div class="col-sm"></div>
+                    <div class="col-sm">
+                        <button type="Search" class="btn btn-primary btn-block">BLAST Molecule</button>
+                    </div>
+                    <div class="col-sm"></div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</body>
+
+</html>
