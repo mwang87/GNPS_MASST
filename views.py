@@ -25,14 +25,27 @@ def homepage():
 @app.route('/submit', methods=['POST'])
 def submit():
 
-    username = ""
-    password = ""
+    username = credentials.USERNAME
+    password = credentials.PASSWORD
+    email = "nobody@ucsd.edu"
 
     analog_search = "0"
     if request.form["analogsearch"] == "Yes":
         analog_search = "1"
 
-    task_id = launch_GNPS_workflow("GNPS MASST", credentials.USERNAME, credentials.PASSWORD, request.form["email"], request.form["pmtolerance"], request.form["fragmenttolerance"], request.form["cosinescore"], request.form["matchedpeaks"], analog_search, request.form["precursormz"], request.form["peaks"])
+    if len(request.form["email"]) > 2:
+        email = request.form["email"]
+
+    if len(request.form["login"]) > 2:
+        username = request.form["login"]
+
+    if len(request.form["password"]) > 2:
+        password = request.form["password"]
+
+    task_id = launch_GNPS_workflow("GNPS MASST", username, password, email, request.form["pmtolerance"], request.form["fragmenttolerance"], request.form["cosinescore"], request.form["matchedpeaks"], analog_search, request.form["precursormz"], request.form["peaks"])
+
+    if task_id is None or len(task_id) != 32:
+        abort(500)
 
     return redirect("https://gnps.ucsd.edu/ProteoSAFe/status.jsp?task=%s" % (task_id))
 
