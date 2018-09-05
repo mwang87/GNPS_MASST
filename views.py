@@ -28,6 +28,7 @@ def submit():
     username = credentials.USERNAME
     password = credentials.PASSWORD
     email = "nobody@ucsd.edu"
+    dataset_filter = "ALL"
 
     analog_search = "0"
     if request.form["analogsearch"] == "Yes":
@@ -42,7 +43,19 @@ def submit():
     if len(request.form["password"]) > 2:
         password = request.form["password"]
 
-    task_id = launch_GNPS_workflow("GNPS MASST", username, password, email, request.form["pmtolerance"], request.form["fragmenttolerance"], request.form["cosinescore"], request.form["matchedpeaks"], analog_search, request.form["precursormz"], request.form["peaks"])
+    if request.form["database"] == "All":
+        dataset_filter = "ALL"
+    elif request.form["database"] == "GNPS":
+        dataset_filter = "GNPS"
+    elif request.form["database"] == "Metabolomics Workbench":
+        dataset_filter = "METABOLOMICSWORKBENCH"
+    elif request.form["database"] == "Metabolights":
+        dataset_filter = "METABOLIGHTS"
+
+
+
+
+    task_id = launch_GNPS_workflow("GNPS MASST", username, password, email, request.form["pmtolerance"], request.form["fragmenttolerance"], request.form["cosinescore"], request.form["matchedpeaks"], analog_search, request.form["precursormz"], request.form["peaks"], dataset_filter)
 
     if task_id is None or len(task_id) != 32:
         abort(500)
@@ -50,7 +63,7 @@ def submit():
     return redirect("https://gnps.ucsd.edu/ProteoSAFe/status.jsp?task=%s" % (task_id))
 
 
-def launch_GNPS_workflow(job_description, username, password, email, pm_tolerance, fragment_tolerance, score_threshold, matched_peaks, analog_search, precursor_mz, peaks_string):
+def launch_GNPS_workflow(job_description, username, password, email, pm_tolerance, fragment_tolerance, score_threshold, matched_peaks, analog_search, precursor_mz, peaks_string, dataset_filter):
     invokeParameters = {}
     invokeParameters["workflow"] = "SEARCH_SINGLE_SPECTRUM"
     invokeParameters["protocol"] = "None"
@@ -69,6 +82,7 @@ def launch_GNPS_workflow(job_description, username, password, email, pm_toleranc
     invokeParameters["SEARCH_LIBQUALITY"] = "3"
     invokeParameters["SEARCH_RAW"] = "0"
     invokeParameters["TOP_K_RESULTS"] = "1"
+    invokeParameters["DATABASES"] = dataset_filter
 
     #Filter Parameters
     invokeParameters["FILTER_LIBRARY"] = "1"
