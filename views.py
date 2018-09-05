@@ -28,7 +28,7 @@ def submit():
     username = credentials.USERNAME
     password = credentials.PASSWORD
     email = "nobody@ucsd.edu"
-    dataset_filter = "ALL"
+    dataset_filter = request.form["database"]
 
     analog_search = "0"
     if request.form["analogsearch"] == "Yes":
@@ -40,16 +40,6 @@ def submit():
     if len(request.form["login"]) > 2 and len(request.form["password"]) > 2:
         username = request.form["login"]
         password = request.form["password"]
-
-    if request.form["database"] == "All":
-        dataset_filter = "ALL"
-    elif request.form["database"] == "GNPS":
-        dataset_filter = "GNPS"
-    elif request.form["database"] == "Metabolomics Workbench":
-        dataset_filter = "METABOLOMICSWORKBENCH"
-    elif request.form["database"] == "Metabolights":
-        dataset_filter = "METABOLIGHTS"
-
 
 
 
