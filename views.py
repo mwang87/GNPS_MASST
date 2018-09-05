@@ -37,10 +37,8 @@ def submit():
     if len(request.form["email"]) > 2:
         email = request.form["email"]
 
-    if len(request.form["login"]) > 2:
+    if len(request.form["login"]) > 2 and len(request.form["password"]) > 2:
         username = request.form["login"]
-
-    if len(request.form["password"]) > 2:
         password = request.form["password"]
 
     if request.form["database"] == "All":
