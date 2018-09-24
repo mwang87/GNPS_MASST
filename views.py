@@ -13,7 +13,9 @@ import credentials
 
 ALLOWED_EXTENSIONS = set(['mgf', 'mzxml', 'mzml'])
 
-
+@app.route('/heartbeat', methods=['GET'])
+def heartbeat():
+    return '{"status" : "up"}'
 
 @app.route('/', methods=['GET'])
 def homepage():
