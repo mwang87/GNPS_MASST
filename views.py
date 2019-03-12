@@ -43,9 +43,9 @@ def submit():
         username = request.form["login"]
         password = request.form["password"]
 
+    description = request.form["description"]
 
-
-    task_id = launch_GNPS_workflow("GNPS MASST", username, password, email, request.form["pmtolerance"], request.form["fragmenttolerance"], request.form["cosinescore"], request.form["matchedpeaks"], analog_search, request.form["precursormz"], request.form["peaks"], dataset_filter)
+    task_id = launch_GNPS_workflow(description, username, password, email, request.form["pmtolerance"], request.form["fragmenttolerance"], request.form["cosinescore"], request.form["matchedpeaks"], analog_search, request.form["precursormz"], request.form["peaks"], dataset_filter)
 
     if task_id is None or len(task_id) != 32:
         abort(500)
