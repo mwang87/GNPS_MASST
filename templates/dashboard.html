@@ -111,11 +111,11 @@
                         <h2> Spectrum Peaks </h2>
                         <div class="form-group">
                             <label for="precursormz">Precursor M/Z</label>
-                            <input type="number" step="any" class="form-control" name="precursormz" placeholder="311.97">
+                            <input id="precursormz" type="number" step="any" class="form-control" name="precursormz" placeholder="1044.66">
                         </div>
                         <div class="form-group">
                             <label for="peaks">Peaks</label>
-                            <textarea class="form-control" name="peaks" rows="12" placeholder='Enter peaks here in the follow format "mass intensity", one per line separated by white space (space or tab).&#10;For Example &#10;100.0 10&#10;100 23'></textarea>
+                            <textarea id="peaks" class="form-control" name="peaks" rows="12" placeholder='Enter peaks here in the follow format "mass intensity", one per line separated by white space (space or tab).&#10;For Example: &#10;463.381 43.591&#10;693.498 119.206&#10;694.496 42.985&#10;707.494 508.18&#10;708.512 197.117&#10;709.558 18.679&#10;723.4 43.831&#10;800.494 476.556&#10;801.518 196.451&#10;802.496 95.972&#10;814.513 86.182&#10;931.574 50.803&#10;972.868 14.634&#10;1016.62 66.809&#10;1017.58 16.578&#10;1025.57 22.426'></textarea>
                         </div>
                     </div>
 
@@ -142,7 +142,10 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-sm"></div>
+                    <div class="col-sm">
+                        <div onclick="populate_demo()" class="btn btn-primary btn-block">Populate Demo</div>
+                    </div>
+
                     <div class="col-sm">
                         <button type="Search" class="btn btn-primary btn-block">MASST Molecule</button>
                     </div>
@@ -153,5 +156,29 @@
     </div>
 
 </body>
+
+<script>
+function populate_demo() {
+    $("#peaks").val("463.381	43.591\n\
+693.498	119.206\n\
+694.496	42.985\n\
+707.494	508.18\n\
+708.512	197.117\n\
+709.558	18.679\n\
+723.4	43.831\n\
+800.494	476.556\n\
+801.518	196.451\n\
+802.496	95.972\n\
+814.513	86.182\n\
+931.574	50.803\n\
+972.868	14.634\n\
+1016.62	66.809\n\
+1017.58	16.578\n\
+1025.57	22.426")
+
+    $("#precursormz").val("1044.66")
+
+}
+</script>
 
 </html>
