@@ -13,6 +13,7 @@ import credentials
 
 ALLOWED_EXTENSIONS = set(['mgf', 'mzxml', 'mzml'])
 
+
 @app.route('/heartbeat', methods=['GET'])
 def heartbeat():
     return '{"status" : "up"}'
@@ -26,6 +27,19 @@ def homepage():
 
 @app.route('/submit', methods=['POST'])
 def submit():
+    try:
+        if len(request.form["peaks"]) < 2:
+            raise Exception
+    except:
+        abort(400, "Peaks not entered")
+    try:
+        if len(request.form["precursormz"]) < 1:
+            raise Exception
+    except:
+        abort(400, "Precursor not entered")
+
+    if len(request.form["peaks"]) > 20000:
+        abort(400, "Peaks are too long, must be less than 20K characters")
 
     username = credentials.USERNAME
     password = credentials.PASSWORD
@@ -48,7 +62,7 @@ def submit():
     task_id = launch_GNPS_workflow(description, username, password, email, request.form["pmtolerance"], request.form["fragmenttolerance"], request.form["cosinescore"], request.form["matchedpeaks"], analog_search, request.form["precursormz"], request.form["peaks"], dataset_filter)
 
     if task_id is None or len(task_id) != 32:
-        abort(500)
+        abort(500, "Task launch at GNPS Failed")
 
     return redirect("https://gnps.ucsd.edu/ProteoSAFe/status.jsp?task=%s" % (task_id))
 
