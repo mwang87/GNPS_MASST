@@ -1,0 +1,8 @@
+version: '3'
+
+services:
+  masst-web:
+    build: .
+    ports:
+      - "5052:5005"
+    command: /app/run_server.sh

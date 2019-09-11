@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  masst-web:
+    networks:
+      - default
+      - nginx-net
+    environment:
+      VIRTUAL_HOST: masst.ucsd.edu
+      VIRTUAL_PORT: 5052
+      LETSENCRYPT_HOST: masst.ucsd.edu
+      LETSENCRYPT_EMAIL: miw023@ucsd.edu
+
+networks:
+  nginx-net:
+    external:
+      name: nginx-net
