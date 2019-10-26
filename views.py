@@ -58,6 +58,9 @@ def submit():
         password = request.form["password"]
 
     description = request.form["description"]
+    
+    if len(description) < 5:
+        description = "GNPS MASST from Webform"
 
     task_id = launch_GNPS_workflow(description, username, password, email, request.form["pmtolerance"], request.form["fragmenttolerance"], request.form["cosinescore"], request.form["matchedpeaks"], analog_search, request.form["precursormz"], request.form["peaks"], dataset_filter)
 
