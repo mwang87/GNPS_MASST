@@ -35,7 +35,9 @@ def test_dry_submit():
     parameters["cosinescore"] = "0.7"
     parameters["matchedpeaks"] = "6"
     
-
+    url = f"https://{PRODUCTION_URL}/submit"
+    r = requests.post(url, data=parameters)
+    r.raise_for_status()
     
     
     
