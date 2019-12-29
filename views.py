@@ -57,7 +57,7 @@ def submit():
         username = request.form["login"]
         password = request.form["password"]
 
-    description = request.form["description"]
+    description = request.form.get(["description"], "GNPS MASST Query")
     
     if len(description) < 5:
         description = "GNPS MASST from Webform"
