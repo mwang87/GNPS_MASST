@@ -27,6 +27,10 @@ def homepage():
 
 @app.route('/submit', methods=['POST'])
 def submit():
+    TEST_MODE = False
+    if "test" in request.form:
+        TEST_MODE = True
+
     try:
         if len(request.form["peaks"]) < 2:
             raise Exception
@@ -57,10 +61,10 @@ def submit():
         username = request.form["login"]
         password = request.form["password"]
 
-    description = request.form.get(["description"], "GNPS MASST Query")
-    
-    if len(description) < 5:
-        description = "GNPS MASST from Webform"
+    description = request.form.get(["description"], "GNPS MASST from Webform")
+
+    if TEST_MODE:
+        return "Test Passed"
 
     task_id = launch_GNPS_workflow(description, username, password, email, request.form["pmtolerance"], request.form["fragmenttolerance"], request.form["cosinescore"], request.form["matchedpeaks"], analog_search, request.form["precursormz"], request.form["peaks"], dataset_filter)
 
