@@ -77,6 +77,7 @@ def submit():
 def launch_GNPS_workflow(job_description, username, password, email, pm_tolerance, fragment_tolerance, score_threshold, matched_peaks, analog_search, precursor_mz, peaks_string, dataset_filter):
     invokeParameters = {}
     invokeParameters["workflow"] = "SEARCH_SINGLE_SPECTRUM"
+    invokeParameters["workflow_version"] = "release_18"
     invokeParameters["protocol"] = "None"
     invokeParameters["desc"] = job_description
     invokeParameters["library_on_server"] = "d.speclibs;"
