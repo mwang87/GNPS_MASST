@@ -61,7 +61,9 @@ def submit():
         username = request.form["login"]
         password = request.form["password"]
 
-    description = request.form.get(["description"], "GNPS MASST from Webform")
+    description = request.values.get("description", "GNPS MASST from Webform")
+    if len(description) == 0:
+        description = "GNPS MASST From Webform "
 
     if TEST_MODE:
         return "Test Passed"
@@ -77,7 +79,7 @@ def submit():
 def launch_GNPS_workflow(job_description, username, password, email, pm_tolerance, fragment_tolerance, score_threshold, matched_peaks, analog_search, precursor_mz, peaks_string, dataset_filter):
     invokeParameters = {}
     invokeParameters["workflow"] = "SEARCH_SINGLE_SPECTRUM"
-    invokeParameters["workflow_version"] = "release_18"
+    invokeParameters["workflow_version"] = "release_28.2"
     invokeParameters["protocol"] = "None"
     invokeParameters["desc"] = job_description
     invokeParameters["library_on_server"] = "d.speclibs;"
@@ -108,6 +110,11 @@ def launch_GNPS_workflow(job_description, username, password, email, pm_toleranc
     invokeParameters["precursor_mz"] = precursor_mz
     invokeParameters["spectrum_string"] = peaks_string
 
+    #Post Processing
+    invokeParameters["CREATE_NETWORK"] = "No"
+    
+    
+
     invokeParameters["email"] = email
     invokeParameters["uuid"] = "1DCE40F7-1211-0001-979D-15DAB2D0B500"
 
@@ -131,7 +138,8 @@ def invoke_workflow(base_url, parameters, login, password):
     r = s.post('https://' + base_url + '/ProteoSAFe/InvokeTools', data=parameters, verify=False)
     task_id = r.text
 
-    print(r.text)
+    import sys
+    print(r.text, file=sys.stderr, flush=True)
 
     if len(task_id) > 4 and len(task_id) < 60:
         print("Launched Task: : " + r.text)
