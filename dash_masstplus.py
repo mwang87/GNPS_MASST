@@ -139,6 +139,9 @@ EXAMPLES_DASHBOARD = [
         [
             html.A('Basic', 
                     href="/masstplus?usi1=mzspec:GNPS:TASK-c95481f0c53d42e78a61bf899e9f9adb-spectra/specs_ms.mgf:scan:1943&analog=Yes"),
+            html.Br(),
+            html.A('Malyngamide',
+                    href="/masstplus?usi1=mzspec:GNPS:TASK-a9c32880f76b4786a5a89682ed101d8f-spectra/specs_ms.mgf:scan:29")
         ]
     )
 ]
