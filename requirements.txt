@@ -42,3 +42,4 @@ Flask-Caching
 celery==5.0.5
 redis
 pyamqp
+requests_cache

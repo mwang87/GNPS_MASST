@@ -138,7 +138,7 @@ EXAMPLES_DASHBOARD = [
     dbc.CardBody(
         [
             html.A('Basic', 
-                    href="/masst_plus?usi1=mzspec:GNPS:TASK-c95481f0c53d42e78a61bf899e9f9adb-spectra/specs_ms.mgf:scan:1943&analog=Yes"),
+                    href="/masstplus?usi1=mzspec:GNPS:TASK-c95481f0c53d42e78a61bf899e9f9adb-spectra/specs_ms.mgf:scan:1943&analog=Yes"),
         ]
     )
 ]
@@ -275,14 +275,10 @@ def draw_output(usi1, analog_search):
     if len(result_list) == 0:
         return ["No Matches"]
 
-    # Let's do some formatting
-    result_df = pd.DataFrame(result_list)
-    result_df["Dataset"] = result_df["DB File"].apply(lambda x: os.path.basename(x).split("_")[0])
-
     table_obj = dash_table.DataTable(
         id='table',
-        columns=[{"name": i, "id": i} for i in result_df.columns],
-        data=result_df.to_dict(orient="records"),
+        columns=[{"name": i, "id": i} for i in result_list[0]],
+        data=result_list,
         sort_action="native",
         filter_action="native",
         page_size=10
