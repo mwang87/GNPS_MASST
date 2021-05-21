@@ -11,8 +11,8 @@ services:
       - ./temp:/app/temp:rw
     ports:
       - "5052:5000"
-    #command: /app/run_server.sh
-    command: /app/run_dev_server.sh
+    command: /app/run_server.sh
+    #command: /app/run_dev_server.sh
     environment:
       VIRTUAL_HOST: masst.ucsd.edu
       VIRTUAL_PORT: 5052

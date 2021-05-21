@@ -56,7 +56,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("GNPS - MASST+ Dashboard - Version 0.1", href="#")),
+                dbc.NavItem(dbc.NavLink("MASST+ Dashboard - Version 0.1", href="/masst_plus")),
             ],
         navbar=True)
     ],
@@ -138,7 +138,7 @@ EXAMPLES_DASHBOARD = [
     dbc.CardBody(
         [
             html.A('Basic', 
-                    href="/?usi1=mzspec:GNPS:TASK-c95481f0c53d42e78a61bf899e9f9adb-spectra/specs_ms.mgf:scan:1943&analog=Yes"),
+                    href="/masst_plus?usi1=mzspec:GNPS:TASK-c95481f0c53d42e78a61bf899e9f9adb-spectra/specs_ms.mgf:scan:1943&analog=Yes"),
         ]
     )
 ]
@@ -176,7 +176,9 @@ def _get_url_param(param_dict, key, default):
                 Output('usi1', 'value'), 
                 Output('analog_search', 'value')
               ],
-              [Input('url', 'search')])
+              [
+                  Input('url', 'search')
+              ])
 def determine_task(search):
     
     try:
