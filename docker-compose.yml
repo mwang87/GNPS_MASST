@@ -2,7 +2,54 @@ version: '3'
 
 services:
   masst-web:
+    networks:
+      - default
+      - nginx-net
     build: .
+    volumes:
+      - ./logs:/app/logs:rw
+      - ./temp:/app/temp:rw
     ports:
-      - "5052:5005"
-    command: /app/run_server.sh
+      - "5052:5000"
+    #command: /app/run_server.sh
+    command: /app/run_dev_server.sh
+    environment:
+      VIRTUAL_HOST: masst.ucsd.edu
+      VIRTUAL_PORT: 5052
+      LETSENCRYPT_HOST: masst.ucsd.edu
+      LETSENCRYPT_EMAIL: miw023@ucsd.edu
+
+  masst-plus-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: masst-plus-worker
+    volumes:
+      - ./logs:/app/logs:rw
+      - ./temp:/app/temp:rw
+      - ./bin:/app/bin:ro
+    command: /app/run_worker.sh
+    restart: unless-stopped
+    depends_on: 
+      - masst-redis
+      - masst-rabbitmq
+    networks:
+      - default
+      - nginx-net
+
+  masst-rabbitmq:
+    container_name: masst-rabbitmq
+    image: rabbitmq
+    networks:
+      - default
+
+  masst-redis:
+    container_name: masst-redis
+    image: redis
+    networks:
+      - default
+
+networks:
+  nginx-net:
+    external:
+      name: nginx-net

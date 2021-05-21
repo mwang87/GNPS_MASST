@@ -1,13 +1,8 @@
 # views.py
-from flask import abort, jsonify, render_template, request, redirect, url_for, make_response
+from flask import abort, render_template, request, redirect, make_response
 import uuid
 
 from app import app
-from werkzeug.utils import secure_filename
-import os
-import glob
-import json
-import ftputil
 import requests
 import credentials
 
