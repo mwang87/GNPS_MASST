@@ -55,7 +55,12 @@ def task_searchmasst(usi, analog_search):
 
     merged_df = results_df.merge(datasets_df, how="left", left_on="Accession", right_on="dataset")
     results_df = merged_df[["Accession", "title", "DB Scan", "Score", "Matched Peaks", "M/Z Delta"]]
-    results_df["title"] = results_df["title"].apply(lambda x: x[:40])
+
+    try:
+        results_df["title"] = results_df["title"].astype(str)
+        results_df["title"] = results_df["title"].apply(lambda x: x[:40])
+    except:
+        pass
 
     return results_df.to_dict(orient="records")
 

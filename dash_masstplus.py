@@ -284,7 +284,8 @@ def draw_output(usi1, analog_search):
         data=result_list,
         sort_action="native",
         filter_action="native",
-        page_size=10
+        page_size=10,
+        export_format="csv"
     )
 
     return [table_obj]
