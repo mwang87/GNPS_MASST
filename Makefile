@@ -3,13 +3,13 @@ server-compose-build:
 
 server-compose-interactive:
 	docker-compose build
-	docker-compose up
+	docker-compose  --compatibility up
 
 server-compose-server:
-	docker-compose up -d
+	docker-compose --compatibility up -d
 
 server-compose-production:
-	docker-compose -f docker-compose.yml up -d
+	docker-compose -f docker-compose.yml --compatibility up -d
 
 build:
 	docker build -t gnps_molecularblast .

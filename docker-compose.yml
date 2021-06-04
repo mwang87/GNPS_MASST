@@ -18,6 +18,10 @@ services:
       VIRTUAL_PORT: 5052
       LETSENCRYPT_HOST: masst.ucsd.edu
       LETSENCRYPT_EMAIL: miw023@ucsd.edu
+    deploy:
+      resources:
+        limits:
+          memory: 4000M
 
   masst-plus-worker:
     build:
@@ -36,18 +40,30 @@ services:
     networks:
       - default
       - nginx-net
+    deploy:
+      resources:
+        limits:
+          memory: 4000M
 
   masst-rabbitmq:
     container_name: masst-rabbitmq
     image: rabbitmq
     networks:
       - default
+    deploy:
+      resources:
+        limits:
+          memory: 500M
 
   masst-redis:
     container_name: masst-redis
     image: redis
     networks:
       - default
+    deploy:
+      resources:
+        limits:
+          memory: 500M
 
 networks:
   nginx-net:
