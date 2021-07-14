@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>GNPS MASST</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
+
+    <style>
+        .dropzone { border: 2px dashed #0087F7; border-radius: 5px; background: white; margin: 20px}
+        .dropzone .dz-message { font-weight: 400; }
+        .dropzone .dz-message .note { font-size: 0.8em; font-weight: 200; display: block; margin-top: 1.4rem; }
+        .container-fluid { min-height: 100%; height: 100%;}
+    </style>
+
+</head>
+
+<body>
+    <!-- A grey horizontal navbar that becomes vertical on small screens -->
+    <nav class="navbar navbar-expand-sm bg-light navbar-light">
+        <a class="navbar-brand" href="https://gnps.ucsd.edu">
+            <img src="static/img/GNPS_logo.png" alt="Logo" style="width:120px;">
+        </a>
+
+      <!-- Links -->
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="/">Classic MASST</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/foodmasst">Food MASST</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="/masstplus">MASST+</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="https://ccms-ucsd.github.io/GNPSDocumentation/masst/">Documentation</a>
+        </li>
+      </ul>
+
+    </nav>
+
+    <div id="content">
+        (% block content %)(% endblock %)
+    </div>
+
+</body>
+
+</html>
