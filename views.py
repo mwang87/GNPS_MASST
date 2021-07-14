@@ -1,13 +1,15 @@
 # views.py
 from flask import abort, render_template, request, redirect, make_response
 import uuid
+import json
+import zipfile
+import io
 
 from app import app
 import requests
 import credentials
 
 ALLOWED_EXTENSIONS = set(['mgf', 'mzxml', 'mzml'])
-
 
 @app.route('/heartbeat', methods=['GET'])
 def heartbeat():
@@ -19,8 +21,14 @@ def homepage():
     response.set_cookie('username', str(uuid.uuid4()))
     return response
 
+@app.route('/foodmasst', methods=['GET'])
+def foodmasst():
+    response = make_response(render_template('foodmasst.html'))
+    response.set_cookie('username', str(uuid.uuid4()))
+    return response
 
 @app.route('/submit', methods=['POST'])
+@app.route('/masst/submit', methods=['POST'])
 def submit():
     TEST_MODE = False
     if "test" in request.form:
@@ -37,7 +45,7 @@ def submit():
     except:
         abort(400, "Precursor not entered")
 
-    if len(request.form["peaks"]) > 20000:
+    if len(request.form["peaks"]) > 50000:
         abort(400, "Peaks are too long, must be less than 20K characters")
 
     username = credentials.USERNAME
@@ -107,8 +115,6 @@ def launch_GNPS_workflow(job_description, username, password, email, pm_toleranc
 
     #Post Processing
     invokeParameters["CREATE_NETWORK"] = "No"
-    
-    
 
     invokeParameters["email"] = email
     invokeParameters["uuid"] = "1DCE40F7-1211-0001-979D-15DAB2D0B500"
@@ -142,3 +148,32 @@ def invoke_workflow(base_url, parameters, login, password):
     else:
         print(task_id)
         return None
+
+
+# Display some results
+@app.route('/foodmasst/result', methods=['GET'])
+def foodmasstresult():
+    task = request.values.get("task")
+
+    # Checking if the task is the proper type
+    url = "https://gnps.ucsd.edu/ProteoSAFe/status_json.jsp?task={}".format(task)
+    r = requests.get(url)
+
+    if r.status_code != 200:
+        return "Error: Task not found"
+    
+    response = r.json()
+
+    if response["workflow"] != "SEARCH_SINGLE_SPECTRUM":
+        return "Error: Task not of type SEARCH_SINGLE_SPECTRUM"
+
+    # Getting the actual html and displaying it
+    download_url = "https://proteomics2.ucsd.edu/ProteoSAFe/DownloadResult?task=6317d3700a864e6cb1c02efdb4ceb46a&view=download_food_tree_html"
+    response = requests.post(download_url)
+    with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
+        for zipinfo in thezip.infolist():
+            with thezip.open(zipinfo) as thefile:
+                if "main.html" in thefile.name:
+                    return thefile.read()
+
+    return "Error: Not Found"
