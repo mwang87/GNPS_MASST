@@ -27,6 +27,15 @@ file_xyz.mgf
 - The first time this is run, a `library` directory will be created automatically in the current directory. On subsequent runs, spectra will be added to the existing library. (Command must be run from the same directory for this to work.)
 - Searches on this library need to be executed from the same directory (i.e. it should contain the `library` subdirectory).
 
+#### Building Notes
+
+You can do this with the "load" binary as follows:
+
+./load my_library.mgf (for a single mgf file)
+./load my_library_list.txt -r (for a txt file that contains a newline-separated list of file paths to mgf files)
+`./load my_library_list.txt -r -l /my/library/path` (specify path to library, absolute or relative to current directory)
+
+
 ## Searching
 
 #### Usage:
@@ -50,6 +59,11 @@ file_xyz.mgf
 
 #### Notes:
 - Spectra with a match score above the threshold will be listed in the output file `matches-all.tsv` created in the directory where the search is run.
+
+#### Searching Notes
+
+To specify a new library
+`./search my_query.mgf -a -l path/to/library`
 
 ## Build instructions
 
