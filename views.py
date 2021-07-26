@@ -168,7 +168,7 @@ def foodmasstresult():
         return "Error: Task not of type SEARCH_SINGLE_SPECTRUM"
 
     # Getting the actual html and displaying it
-    download_url = "https://proteomics2.ucsd.edu/ProteoSAFe/DownloadResult?task=6317d3700a864e6cb1c02efdb4ceb46a&view=download_food_tree_html"
+    download_url = "https://proteomics2.ucsd.edu/ProteoSAFe/DownloadResult?task={}&view=download_food_tree_html".format(task)
     response = requests.post(download_url)
     with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
         for zipinfo in thezip.infolist():
