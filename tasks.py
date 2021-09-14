@@ -10,10 +10,6 @@ import pandas as pd
 # Requests cache for massive information, that expires after 24 hours
 requests_cache.install_cache('temp/requests_cache', expire_after=84600)
 
-# Global data for datasets
-all_gnps_datasets = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=3000&offset=0&query={%22title_input%22:%22GNPS%22}").json()
-datasets_df = pd.DataFrame(all_gnps_datasets["row_data"])
-
 
 celery_instance = Celery('tasks', backend='redis://masst-redis', broker='pyamqp://guest@masst-rabbitmq//', )
 
@@ -52,6 +48,10 @@ def task_searchmasst(usi, analog_search):
 
     # Adding dataset information
     results_df["Accession"] = results_df["DB File"].apply(lambda x: os.path.basename(x).split("_")[0])
+
+    # Global data for datasets
+    all_gnps_datasets = requests.get("https://massive.ucsd.edu/ProteoSAFe/QueryDatasets?pageSize=3000&offset=0&query={%22title_input%22:%22GNPS%22}").json()
+    datasets_df = pd.DataFrame(all_gnps_datasets["row_data"])
 
     merged_df = results_df.merge(datasets_df, how="left", left_on="Accession", right_on="dataset")
     results_df = merged_df[["Accession", "title", "DB Scan", "Score", "Matched Peaks", "M/Z Delta"]]
