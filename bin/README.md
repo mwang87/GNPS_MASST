@@ -82,3 +82,7 @@ $ make
 Executable file locations after build:
 - Indexing: `build/source/tools/load`
 - Searching: `build/source/tools/search`
+
+
+#### DB Locations
+

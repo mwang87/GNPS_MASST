@@ -22,3 +22,6 @@ server:
 
 interactive:
 	docker run -it -p 5052:5005 --rm --name gnps_molecularblast gnps_molecularblast /app/run_server.sh
+
+attach:
+	docker exec -it masst-plus-worker /bin/bash
