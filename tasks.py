@@ -27,6 +27,7 @@ def task_searchmasst(usi, analog_search):
     random_string = str(uuid.uuid4()).replace("-", "")
     temp_query_mgf = os.path.join("temp", "{}.mgf".format(random_string))
     temp_results_tsv = os.path.join("temp", "{}.tsv".format(random_string))
+    temp_cmd = os.path.join("temp", "{}.cmd".format(random_string))
 
     with open(temp_query_mgf, "w") as o:
         o.write("BEGIN IONS\n")
@@ -37,10 +38,13 @@ def task_searchmasst(usi, analog_search):
         o.write("END IONS\n")
 
     if analog_search == "Yes":
-        cmd = "./bin/search {} -a -l ./bin/library -o {}".format(temp_query_mgf, temp_results_tsv)
+        cmd = "./bin/search {} -a -l ./bin/library -o {} > /dev/null".format(temp_query_mgf, temp_results_tsv)
     else:
-        cmd = "./bin/search {} -l ./bin/library -o {}".format(temp_query_mgf, temp_results_tsv)
-        
+        cmd = "./bin/search {} -l ./bin/library -o {}  > /dev/null".format(temp_query_mgf, temp_results_tsv)
+
+    with open(temp_cmd, "w") as o:
+        o.write(cmd)
+    
     os.system(cmd)
 
     results_df = pd.read_csv(temp_results_tsv, sep="\t")
