@@ -38,7 +38,7 @@ pymzml==2.4.7
 matplotlib
 dash_daq
 Flask-Caching
-celery==5.0.5
+celery==5.2.2
 redis
 pyamqp
 requests_cache
