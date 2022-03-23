@@ -112,6 +112,15 @@ MIDDLE_DASHBOARD = [
                 children=[html.Div([html.Div(id="loading-output-23")])],
                 type="default",
             ),
+            html.Br(),
+            html.Hr(),
+            html.Br(),
+            dcc.Loading(
+                id="spectrummirror",
+                children=[html.Div([html.Div(id="loading-output-24")])],
+                type="default",
+            ),
+
         ]
     )
 ]
@@ -193,7 +202,7 @@ def determine_task(search):
     except:
         query_dict = {}
 
-    usi1 = _get_url_param(query_dict, "usi1", 'mzspec:MASSBANK::accession:BML00348')
+    usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:TASK-c95481f0c53d42e78a61bf899e9f9adb-spectra/specs_ms.mgf:scan:1943')
     analog_search = _get_url_param(query_dict, "analog", 'No')
 
     return [usi1, analog_search]
@@ -289,10 +298,50 @@ def draw_output(usi1, analog_search):
         sort_action="native",
         filter_action="native",
         page_size=10,
-        export_format="csv"
+        export_format="csv",
+        row_selectable='single',
+        css=[{'selector': '.row', 'rule': 'margin: 0'}],
+        style_table={
+            'overflowX': 'auto'
+        }
     )
 
     return [table_obj]
+
+@dash_app.callback([
+                Output('spectrummirror', 'children')
+              ],
+              [
+                  Input('usi1', 'value'),
+                  Input('table', 'derived_virtual_data'),
+                  Input('table', 'derived_virtual_selected_rows'),
+              ]
+)
+def draw_spectrum(usi1, table_data, table_selected):
+    try:
+        selected_row = table_data[table_selected[0]]
+    except:
+        return ["Choose Match to Show Mirror Plot"]
+
+    dataset_accession = selected_row["Accession"]
+    dataset_scan = selected_row["DB Scan"]
+
+    database_usi = "mzspec:MSV000084314:{}:scan:{}".format("updates/2020-11-18_mwang87_d115210a/other/MGF/{}.mgf".format(dataset_accession), dataset_scan)
+
+    url_params_dict = {}
+    url_params_dict["usi1"] = usi1
+    url_params_dict["usi2"] = database_usi
+
+    url_params = urllib.parse.urlencode(url_params_dict)
+
+    link_url = "https://metabolomics-usi.ucsd.edu/dashinterface"
+    link = html.A("View Spectrum Mirror Plot in Metabolomics Resolver", href=link_url + "?" + url_params, target="_blank")
+    svg_url = "https://metabolomics-usi.ucsd.edu/svg/mirror/?{}".format(url_params)
+
+    image_obj = html.Img(src=svg_url)
+
+    return [[link, html.Br(), image_obj]]
+
 
 # API
 @app.route("/api")
