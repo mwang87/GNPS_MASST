@@ -6,7 +6,6 @@ import dash_html_components as html
 import dash_table
 import plotly.express as px
 import plotly.graph_objects as go 
-import dash_daq as daq
 from dash.dependencies import Input, Output, State
 import os
 from zipfile import ZipFile
@@ -18,7 +17,6 @@ import requests
 import uuid
 import werkzeug
 
-import pymzml
 import numpy as np
 from tqdm import tqdm
 import urllib
@@ -72,14 +70,14 @@ DATASELECTION_CARD = [
             html.H5(children='GNPS Data Selection'),
             dbc.InputGroup(
                 [
-                    dbc.InputGroupAddon("Spectrum USI", addon_type="prepend"),
+                    dbc.InputGroupText("Spectrum USI"),
                     dbc.Input(id='usi1', placeholder="Enter GNPS USI", value=""),
                 ],
                 className="mb-3",
             ),
             dbc.InputGroup(
                 [
-                    dbc.InputGroupAddon("Analog Search", addon_type="prepend"),
+                    dbc.InputGroupText("Analog Search"),
                     dbc.Select(
                         id="analog_search",
                         options=[
