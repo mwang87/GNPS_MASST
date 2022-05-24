@@ -30,10 +30,15 @@ import tasks
 
 from app import app
 
+# For MicrobeMASST code from robin
+import sys
+sys.path.insert(0, "microbe_masst/code/")
+import microbe_masst
+
 dash_app = dash.Dash(
     name="dashinterface",
     server=app,
-    url_base_pathname="/masstplus/",
+    url_base_pathname="/microbemasst/",
     external_stylesheets=[dbc.themes.BOOTSTRAP],
 )
 
@@ -54,7 +59,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("MASST+ Dashboard - Version 0.1", href="/masst_plus")),
+                dbc.NavItem(dbc.NavLink("MicrobeMASST Dashboard - Version 0.1", href="/microbemasst")),
             ],
         navbar=True)
     ],
@@ -72,20 +77,6 @@ DATASELECTION_CARD = [
                 [
                     dbc.InputGroupText("Spectrum USI"),
                     dbc.Input(id='usi1', placeholder="Enter GNPS USI", value=""),
-                ],
-                className="mb-3",
-            ),
-            dbc.InputGroup(
-                [
-                    dbc.InputGroupText("Analog Search"),
-                    dbc.Select(
-                        id="analog_search",
-                        options=[
-                            {"label": "Yes", "value": "Yes"},
-                            {"label": "No", "value": "No"},
-                        ],
-                        value="No"
-                    )
                 ],
                 className="mb-3",
             ),
@@ -127,11 +118,9 @@ CONTRIBUTORS_DASHBOARD = [
     dbc.CardHeader(html.H5("Contributors")),
     dbc.CardBody(
         [
-            "Tyler Yasaka - CMU",
-            html.Br(),
             "Mingxun Wang PhD - UC San Diego",
             html.Br(),
-            "Hosein Mohimani - CMU",
+            "Robin Schmid PhD - UC San Diego",
             html.Br(),
             # html.H5("Citation"),
             # html.A('Mingxun Wang, Jeremy J. Carver, Vanessa V. Phelan, Laura M. Sanchez, Neha Garg, Yao Peng, Don Duy Nguyen et al. "Sharing and community curation of mass spectrometry data with Global Natural Products Social Molecular Networking." Nature biotechnology 34, no. 8 (2016): 828. PMID: 27504778', 
@@ -188,7 +177,6 @@ def _get_url_param(param_dict, key, default):
 
 @dash_app.callback([
                 Output('usi1', 'value'), 
-                Output('analog_search', 'value')
               ],
               [
                   Input('url', 'search')
@@ -200,79 +188,11 @@ def determine_task(search):
     except:
         query_dict = {}
 
-    usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:TASK-c95481f0c53d42e78a61bf899e9f9adb-spectra/specs_ms.mgf:scan:1943')
-    analog_search = _get_url_param(query_dict, "analog", 'No')
+    usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00000085687')
 
-    return [usi1, analog_search]
+    return [usi1]
 
 
-# @app.callback([
-#                 Output('plot_link', 'children')
-#               ],
-#               [
-#                   Input('gnps_tall_table_usi', 'value'),
-#                   Input('gnps_quant_table_usi', 'value'),
-#                   Input('gnps_metadata_table_usi', 'value'), 
-#                 Input('feature', 'value'),
-#                 Input("metadata_column", "value"),
-#                 Input("facet_column", "value"),
-#                 Input("animation_column", "value"),
-#                 Input("group_selection", "value"),
-#                 Input("color_selection", "value"),
-#                 Input("theme", "value"),
-#                 Input("plot_type", "value"),
-#                 Input("image_export_format", "value"),
-#                 Input("points_toggle", "value"),
-#                 Input("log_axis", "value"),
-#                 Input("lat_column", "value"),
-#                 Input("long_column", "value"),
-#                 Input("map_animation_column", "value"),
-#                 Input("map_scope", "value"),
-#               ])
-# def draw_link(      gnps_tall_table_usi, 
-#                     gnps_quant_table_usi, 
-#                     gnps_metadata_table_usi, 
-#                     feature_id, 
-#                     metadata_column, 
-#                     facet_column, 
-#                     animation_column, 
-#                     group_selection, 
-#                     color_selection, 
-#                     theme, 
-#                     plot_type, 
-#                     image_export_format, 
-#                     points_toggle, 
-#                     log_axis,
-#                     lat_column,
-#                     long_column,
-#                     map_animation_column,
-#                     map_scope):
-#     # Creating Reproducible URL for Plot
-#     url_params = {}
-#     url_params["gnps_tall_table_usi"] = gnps_tall_table_usi
-#     url_params["gnps_quant_table_usi"] = gnps_quant_table_usi
-#     url_params["gnps_metadata_table_usi"] = gnps_metadata_table_usi
-
-#     url_params["feature"] = feature_id
-#     url_params["metadata"] = metadata_column
-#     url_params["facet"] = facet_column
-#     url_params["groups"] = ";".join(group_selection)
-#     url_params["plot_type"] = plot_type
-#     url_params["color"] = color_selection
-#     url_params["points_toggle"] = points_toggle
-#     url_params["theme"] = theme
-#     url_params["animation_column"] = animation_column
-
-#     # Mapping Options
-#     url_params["lat_column"] = lat_column
-#     url_params["long_column"] = long_column
-#     url_params["map_animation_column"] = map_animation_column
-#     url_params["map_scope"] = map_scope
-    
-#     url_provenance = dbc.Button("Link to this Plot", block=True, color="primary", className="mr-1")
-#     provenance_link_object = dcc.Link(url_provenance, href="/?" + urllib.parse.urlencode(url_params) , target="_blank")
-
-#     return [provenance_link_object]
 
 
 @dash_app.callback([
@@ -280,31 +200,22 @@ def determine_task(search):
               ],
               [
                   Input('usi1', 'value'),
-                  Input('analog_search', 'value')
             ])
-def draw_output(usi1, analog_search):
-    result = tasks.task_searchmasst.delay(usi1, analog_search)
-    result_list = result.get()
+def draw_output(usi1):
 
-    if len(result_list) == 0:
-        return ["No Matches"]
+    # Doing MicrobeMASST here
+    microbe_masst.run_microbe_masst(usi1, 0.05, 0.02, 0.7,
+            # tree generation
+            "./microbe_masst/code/collapsible_tree_v3.html", 
+            "./microbe_masst/data/ncbi.json", 
+            "./microbe_masst/data/microbe_masst_table.csv",
+            "./temp/microbemasst/counts.tsv",
+            "./temp/microbemasst/tree.json", True, 
+            "./temp/microbemasst/oneindex.html", True,
+            node_key="NCBI", data_key="ncbi")
 
-    table_obj = dash_table.DataTable(
-        id='table',
-        columns=[{"name": i, "id": i} for i in result_list[0]],
-        data=result_list,
-        sort_action="native",
-        filter_action="native",
-        page_size=10,
-        export_format="csv",
-        row_selectable='single',
-        css=[{'selector': '.row', 'rule': 'margin: 0'}],
-        style_table={
-            'overflowX': 'auto'
-        }
-    )
-
-    return [table_obj]
+    
+    return ["MING SEARCH" + usi1]
 
 @dash_app.callback([
                 Output('spectrummirror', 'children')
@@ -339,12 +250,6 @@ def draw_spectrum(usi1, table_data, table_selected):
     image_obj = html.Img(src=svg_url)
 
     return [[link, html.Br(), image_obj]]
-
-
-# API
-@app.route("/api")
-def api():
-    return "Up"
 
 if __name__ == "__main__":
     app.run_server(debug=True, port=5000, host="0.0.0.0")
