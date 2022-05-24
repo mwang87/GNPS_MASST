@@ -10,7 +10,7 @@ from dash.dependencies import Input, Output, State
 import os
 from zipfile import ZipFile
 import urllib.parse
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, request
 
 import pandas as pd
 import requests
@@ -30,10 +30,7 @@ import tasks
 
 from app import app
 
-# For MicrobeMASST code from robin
-import sys
-sys.path.insert(0, "microbe_masst/code/")
-import microbe_masst
+
 
 dash_app = dash.Dash(
     name="dashinterface",
@@ -133,14 +130,8 @@ EXAMPLES_DASHBOARD = [
     dbc.CardHeader(html.H5("Examples")),
     dbc.CardBody(
         [
-            html.A('Basic', 
-                    href="/masstplus?usi1=mzspec:GNPS:TASK-c95481f0c53d42e78a61bf899e9f9adb-spectra/specs_ms.mgf:scan:1943&analog=Yes"),
-            html.Br(),
-            html.A('Malyngamide',
-                    href="/masstplus?usi1=mzspec:GNPS:TASK-a9c32880f76b4786a5a89682ed101d8f-spectra/specs_ms.mgf:scan:29"),
-            html.Br(),
-            html.A('Test Analog Search 1',
-                    href="/masstplus/?usi1=mzspec:MSV000084314:updates/2020-10-08_mwang87_d7c866dd/other/MGF/MSV000078787.mgf:scan:28&analog=Yes"),
+            html.A('Stenothricin', 
+                    href="/microbemasst?usi1=mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00005436027"),
             
         ]
     )
@@ -152,19 +143,21 @@ BODY = dbc.Container(
         dbc.Row([
             dbc.Col(
                 dbc.Card(LEFT_DASHBOARD),
-                className="col-4"
+                className="col-6"
             ),
             dbc.Col(
                 [
-                    dbc.Card(MIDDLE_DASHBOARD),
-                    html.Br(),
                     dbc.Card(CONTRIBUTORS_DASHBOARD),
-                    html.Br(),
-                    dbc.Card(EXAMPLES_DASHBOARD)
+                    # html.Br(),
+                    # dbc.Card(EXAMPLES_DASHBOARD)
                 ],
-                className="col-8"
+                className="col-6"
             ),
         ], style={"marginTop": 30}),
+        html.Br(),
+        dbc.Row([
+            dbc.Card(MIDDLE_DASHBOARD)
+        ])
     ],
     fluid=True,
     className="",
@@ -202,20 +195,41 @@ def determine_task(search):
                   Input('usi1', 'value'),
             ])
 def draw_output(usi1):
+    # For MicrobeMASST code from robin
+    # import sys
+    # sys.path.insert(0, "microbe_masst/code/")
+    # import microbe_masst
 
-    # Doing MicrobeMASST here
-    microbe_masst.run_microbe_masst(usi1, 0.05, 0.02, 0.7,
-            # tree generation
-            "./microbe_masst/code/collapsible_tree_v3.html", 
-            "./microbe_masst/data/ncbi.json", 
-            "./microbe_masst/data/microbe_masst_table.csv",
-            "./temp/microbemasst/counts.tsv",
-            "./temp/microbemasst/tree.json", True, 
-            "./temp/microbemasst/oneindex.html", True,
-            node_key="NCBI", data_key="ncbi")
+    # # Doing MicrobeMASST here
+    # microbe_masst.run_microbe_masst(usi1, 0.05, 0.02, 0.7,
+    #         # tree generation
+    #         in_html="./microbe_masst/code/collapsible_tree_v3.html", 
+    #         in_ontology="./microbe_masst/data/ncbi.json", 
+    #         metadata_file="./microbe_masst/data/microbe_masst_table.csv",
+    #         out_counts_file="./temp/microbemasst/counts.tsv",
+    #         out_json_tree="./temp/microbemasst/tree.json", format_out_json=True, 
+    #         out_html="./temp/microbemasst/oneindex.html", compress_out_html=True,
+    #         node_key="NCBI", data_key="ncbi")
 
+    import uuid
+    mangling = str(uuid.uuid4())
+    output_temp = os.path.join("temp", "microbemasst", mangling)
+    os.makedirs(output_temp, exist_ok=True)
+
+    output_html = "../../{}/oneindex.html".format(output_temp)
+    output_tree = "../../{}/tree.json".format(output_temp)
+    output_counts = "../../{}/counts.tsv".format(output_temp)
+
+    cmd = 'cd microbe_masst/code/ && python microbe_masst.py \
+    --usi_or_lib_id "{}" \
+    --out_html "{}" \
+    --out_tree "{}" \
+    --out_counts_file "{}"'.format(usi1, output_html, output_tree, output_counts)
+    import sys
+    print(cmd, file=sys.stderr, flush=True)
+    os.system(cmd)
     
-    return ["MING SEARCH" + usi1]
+    return [html.Iframe(src="/microbemasst/results?task={}".format(mangling), width="100%", height="900px")]
 
 @dash_app.callback([
                 Output('spectrummirror', 'children')
@@ -250,6 +264,14 @@ def draw_spectrum(usi1, table_data, table_selected):
     image_obj = html.Img(src=svg_url)
 
     return [[link, html.Br(), image_obj]]
+
+# API
+@app.route("/microbemasst/results")
+def results():
+    task = request.args.get("task")
+    output_folder = os.path.join("temp", "microbemasst", os.path.basename(task))
+
+    return send_from_directory(output_folder, "oneindex.html")
 
 if __name__ == "__main__":
     app.run_server(debug=True, port=5000, host="0.0.0.0")

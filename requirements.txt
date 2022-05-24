@@ -23,3 +23,5 @@ pyarrow
 beautifulsoup4
 anytree
 pronto
+lxml
+minify_html
