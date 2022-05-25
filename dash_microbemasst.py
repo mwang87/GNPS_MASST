@@ -39,7 +39,7 @@ dash_app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
 )
 
-dash_app.title = 'MASST+'
+dash_app.title = 'Microbe MASST'
 
 cache = Cache(dash_app.server, config={
     'CACHE_TYPE': 'filesystem',
@@ -77,6 +77,23 @@ DATASELECTION_CARD = [
                 ],
                 className="mb-3",
             ),
+            dbc.Row([
+                dbc.Col([
+                    dbc.Button("Copy Link", color="info", id="copy_link_button", n_clicks=0),
+                ]),
+                dbc.Col([
+                    html.A(dbc.Button("View MASST Search", color="info", n_clicks=0),
+                        id="link_to_masst", href="", target="_blank"),
+                ])]
+            ),
+            html.Div(
+                [
+                    dcc.Link(id="query_link", href="#", target="_blank"),
+                ],
+                style={
+                        "display" :"none"
+                }
+            )
         ]
     )
 ]
@@ -264,6 +281,69 @@ def draw_spectrum(usi1, table_data, table_selected):
     image_obj = html.Img(src=svg_url)
 
     return [[link, html.Br(), image_obj]]
+
+
+@dash_app.callback([
+                Output('query_link', 'href'),
+              ],
+                [
+                    Input('usi1', 'value'),
+                ])
+def draw_url(usi1):
+    params = {}
+    params["usi1"] = usi1
+
+    url_params = urllib.parse.urlencode(params)
+
+    return [request.host_url + "/microbemasst?" + url_params]
+
+
+@dash_app.callback([
+                Output('link_to_masst', 'href'),
+              ],
+                [
+                    Input('usi1', 'value'),
+                ])
+def draw_url(usi1):
+    params = {}
+    params["usi1"] = usi1
+
+    url_params = urllib.parse.urlencode(params)
+
+    return ["https://fastlibrarysearch.ucsd.edu/fastsearch/?" + url_params]
+
+
+dash_app.clientside_callback(
+    """
+    function(n_clicks, button_id, text_to_copy) {
+        original_text = "Copy Link"
+        if (n_clicks > 0) {
+            const el = document.createElement('textarea');
+            el.value = text_to_copy;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            setTimeout(function(id_to_update, text_to_update){ 
+                return function(){
+                    document.getElementById(id_to_update).textContent = text_to_update
+                }}(button_id, original_text), 1000);
+            document.getElementById(button_id).textContent = "Copied!"
+            return 'Copied!';
+        } else {
+            return original_text;
+        }
+    }
+    """,
+    Output('copy_link_button', 'children'),
+    [
+        Input('copy_link_button', 'n_clicks'),
+        Input('copy_link_button', 'id'),
+    ],
+    [
+        State('query_link', 'href'),
+    ]
+)
 
 # API
 @app.route("/microbemasst/results")
