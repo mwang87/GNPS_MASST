@@ -28,8 +28,13 @@ def query_all(usi_df, masst_type, output_file):
 
     for usi in all_usi:
         results_dict = query_usi(usi, database_name)
+        results_df = pd.DataFrame(results_dict["results"])
 
-        print(len(results_dict["results"]))
+        if masst_type == "microbemasst":
+            # Lets do additionally processing
+            print("MICROBEMASST")
+
+        print(results_df)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='MassT Client')
