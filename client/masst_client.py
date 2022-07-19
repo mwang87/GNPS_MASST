@@ -32,6 +32,7 @@ def query_all(usi_df, masst_type, output_file):
         results_dict = query_usi(usi, database_name)
         results_df = pd.DataFrame(results_dict["results"])
 
+        # TODO: Support munging of microbemasst results
         #if masst_type == "microbemasst":
             # Lets do additionally processing
         #    print("MICROBEMASST")
