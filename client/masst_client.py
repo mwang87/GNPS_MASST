@@ -26,15 +26,21 @@ def query_all(usi_df, masst_type, output_file):
     database_name = "gnpsdata_index"
     all_usi = list(usi_df["usi"])
 
+    output_results_list = []
+
     for usi in all_usi:
         results_dict = query_usi(usi, database_name)
         results_df = pd.DataFrame(results_dict["results"])
 
-        if masst_type == "microbemasst":
+        #if masst_type == "microbemasst":
             # Lets do additionally processing
-            print("MICROBEMASST")
+        #    print("MICROBEMASST")
 
-        print(results_df)
+        results_df["query_usi"] = usi
+        output_results_list.append(results_df)
+        
+    output_results_df = pd.concat(output_results_list)
+    output_results_df.to_csv(output_file, index=False, sep="\t")
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fast MASST Client')
