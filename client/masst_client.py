@@ -37,8 +37,8 @@ def query_all(usi_df, masst_type, output_file):
         print(results_df)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='MassT Client')
-    parser.add_argument('input_file', help='file to query')
+    parser = argparse.ArgumentParser(description='Fast MASST Client')
+    parser.add_argument('input_file', help='file to query with USIs')
     parser.add_argument('output_file', help='output_file')
     parser.add_argument('--masst_type', help='Type of MASST to give youresults: gnpsdata, microbemasst', default="masst")
     args = parser.parse_args()
