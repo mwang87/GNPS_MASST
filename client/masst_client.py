@@ -41,7 +41,9 @@ def masst_query_all(usi_list, masst_type, analog=False, precursor_mz_tol=0.02, f
         results_df["query_usi"] = usi
         output_results_list.append(results_df)
     
-    return output_results_list
+    output_results_df = pd.concat(output_results_list)
+
+    return output_results_df
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fast MASST Client')
@@ -50,7 +52,5 @@ if __name__ == '__main__':
     parser.add_argument('--masst_type', help='Type of MASST to give youresults: gnpsdata, microbemasst', default="masst")
     args = parser.parse_args()
 
-    output_results_list = masst_query_all(pd.read_csv(args.input_file)["usi"], args.masst_type)
-
-    output_results_df = pd.concat(output_results_list)
+    output_results_df = masst_query_all(pd.read_csv(args.input_file)["usi"], args.masst_type)
     output_results_df.to_csv(args.output_file, index=False, sep="\t")
