@@ -2,7 +2,8 @@ import pandas as pd
 import argparse
 import requests
 import requests_cache
-requests_cache.install_cache('demo_cache')
+from tqdm import tqdm
+#requests_cache.install_cache('demo_cache')
 
 def query_usi(usi, database, analog=False, precursor_mz_tol=0.02, fragment_mz_tol=0.02, min_cos=0.7):
     URL = "https://fastlibrarysearch.ucsd.edu/search"
@@ -17,19 +18,19 @@ def query_usi(usi, database, analog=False, precursor_mz_tol=0.02, fragment_mz_to
     }
 
     r = requests.get(URL, params=params, timeout=50)
+    r.raise_for_status()
 
     return r.json()
 
-def query_all(usi_df, masst_type, output_file):
-    print(usi_df)
-
+def masst_query_all(usi_list, masst_type, analog=False, precursor_mz_tol=0.02, fragment_mz_tol=0.02, min_cos=0.7):
     database_name = "gnpsdata_index"
-    all_usi = list(usi_df["usi"])
 
     output_results_list = []
 
-    for usi in all_usi:
-        results_dict = query_usi(usi, database_name)
+    for usi in tqdm(usi_list):
+        results_dict = query_usi(usi, database_name,
+            analog=analog, precursor_mz_tol=precursor_mz_tol, 
+            fragment_mz_tol=fragment_mz_tol, min_cos=min_cos)
         results_df = pd.DataFrame(results_dict["results"])
 
         # TODO: Support munging of microbemasst results
@@ -39,9 +40,8 @@ def query_all(usi_df, masst_type, output_file):
 
         results_df["query_usi"] = usi
         output_results_list.append(results_df)
-        
-    output_results_df = pd.concat(output_results_list)
-    output_results_df.to_csv(output_file, index=False, sep="\t")
+    
+    return output_results_list
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fast MASST Client')
@@ -50,4 +50,7 @@ if __name__ == '__main__':
     parser.add_argument('--masst_type', help='Type of MASST to give youresults: gnpsdata, microbemasst', default="masst")
     args = parser.parse_args()
 
-    query_all(pd.read_csv(args.input_file), args.masst_type, args.output_file)
+    output_results_list = masst_query_all(pd.read_csv(args.input_file)["usi"], args.masst_type)
+
+    output_results_df = pd.concat(output_results_list)
+    output_results_df.to_csv(args.output_file, index=False, sep="\t")
