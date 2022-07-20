@@ -37,6 +37,7 @@ def masst_query_all(usi_list, masst_type, analog=False, precursor_mz_tol=0.02, f
         #if masst_type == "microbemasst":
             # Lets do additionally processing
         #    print("MICROBEMASST")
+        # TODO: Merge with metadata automatically
 
         results_df["query_usi"] = usi
         output_results_list.append(results_df)
