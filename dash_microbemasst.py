@@ -190,22 +190,23 @@ def determine_task(search):
               ],
               [
                   Input('usi1', 'value'),
-                  Input('prec_mz_tol', 'value'),
-                  Input('mz_tol', 'value'),
-                  Input('min_cos', 'value'),
-                  Input('min_matched_signals', 'value'),
-                  Input('use_analog', 'value'),
-                  Input('analog_mass_below', 'value'),
-                  Input('analog_mass_above', 'value')
+                #   Input('prec_mz_tol', 'value'),
+                #   Input('mz_tol', 'value'),
+                #   Input('min_cos', 'value'),
+                #   Input('min_matched_signals', 'value'),
+                #   Input('use_analog', 'value'),
+                #   Input('analog_mass_below', 'value'),
+                #   Input('analog_mass_above', 'value')
             ])
-def draw_output(usi1,
-             prec_mz_tol,
-             mz_tol,
-             min_cos,
-             min_matched_signals,
-             use_analog,
-             analog_mass_below,
-             analog_mass_above):
+# def draw_output(usi1,
+#              prec_mz_tol,
+#              ms2_mz_tol,
+#              min_cos,
+#              min_matched_signals,
+#              use_analog,
+#              analog_mass_below,
+#              analog_mass_above):
+def draw_output(usi1):
     # For MicrobeMASST code from robin
     # import sys
     # sys.path.insert(0, "microbe_masst/code/")
@@ -217,6 +218,14 @@ def draw_output(usi1,
     os.makedirs(output_temp, exist_ok=True)
 
     out_file = "../../{}/fastMASST".format(output_temp)
+
+    prec_mz_tol = 0.05
+    ms2_mz_tol = 0.05
+    min_cos = 0.7
+    min_matched_signals = 6
+    use_analog = False
+    analog_mass_below = 100
+    analog_mass_above = 150
 
     cmd = 'cd microbe_masst/code/ && python masst_client.py \
     --usi_or_lib_id "{}" \
@@ -231,7 +240,7 @@ def draw_output(usi1,
     '.format(usi1,
              out_file,
              prec_mz_tol,
-             mz_tol,
+             ms2_mz_tol,
              min_cos,
              min_matched_signals,
              use_analog,
