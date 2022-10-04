@@ -50,7 +50,7 @@ DATASELECTION_CARD = [
     dbc.CardHeader(html.H5("Data Selection")),
     dbc.CardBody(
         [   
-            html.H5(children='GNPS Data Selection'),
+            html.H5(children='GNPS Data Selection - Enter USI or Spectrum Peaks'),
             dbc.InputGroup(
                 [
                     dbc.InputGroupText("Spectrum USI"),
@@ -58,12 +58,62 @@ DATASELECTION_CARD = [
                 ],
                 className="mb-3",
             ),
+            html.Hr(),
+            dbc.InputGroup(
+                [
+                    dbc.InputGroupText("Spectrum Peaks"),
+                    dbc.Textarea(id='peaks', placeholder="Enter one peak per line as follows:\n\nm/z1\tintensity1\nm/zz2\tintensity2\nm/z3\tintensity3\n...", rows=10),
+                ],
+                className="mb-3"
+            ),
+            dbc.InputGroup(
+                [
+                    dbc.InputGroupText("Precursor m/z"),
+                    dbc.Input(id='precursor_mz', type='', placeholder="precursor m/z", min = 1, max=10000),
+                    dbc.InputGroupText("Charge"),
+                    dbc.Input(id='charge', type='number', placeholder="charge", min = 1, max=40),
+                ],
+                className="mb-3 no-margin-bottom"
+            ),
+            html.Hr(),
+            dbc.InputGroup(
+                [
+                    dbc.InputGroupText("PM Tolerance (Da)"),
+                    dbc.Input(id='pm_tolerance', type='number', placeholder="pm tolerance", value=0.05, min = 0.05, max = 0.4, step=0.05),
+                    dbc.InputGroupText("Fragment Tolerance (Da)"),
+                    dbc.Input(id='fragment_tolerance', type='number', placeholder="fragment_tolerance", value=0.05,min = 0.05, max = 0.4, step=0.05),
+                    dbc.InputGroupText("Cosine Threshold"),
+                    dbc.Input(id='cosine_threshold', type='number', placeholder="cosine_threshold", value=0.7, min=0.5, max=1.0, step=0.05),
+                ],
+                className="mb-3",
+            ),
+            dbc.InputGroup(
+                [
+                    dbc.InputGroupText("Analog Search"),
+                    dbc.Select(
+                        id="analog_select",
+                        options=[
+                            {"label": "Yes", "value": "Yes"},
+                            {"label": "No", "value": "No"},
+                        ],
+                        value="No"
+                    ),
+                    dbc.InputGroupText("Delta Mass Below (Da)"),
+                    dbc.Input(id='delta_mass_below', type='number', placeholder="delta_mass_below", value=130, min = 0, max = 300, step=1),
+                    dbc.InputGroupText("Delta Mass Above (Da)"),
+                    dbc.Input(id='delta_mass_above', type='number', placeholder="delta_mass_above", value=200, min = 0, max = 300, step=1),
+                ],
+                className="mb-3",
+            ),
             dbc.Row([
                 dbc.Col([
-                    dbc.Button("Copy Link", color="info", id="copy_link_button", n_clicks=0),
+                    dbc.Button("Search MicrobeMASST", color="warning", id="search_button", n_clicks=0),
                 ]),
                 dbc.Col([
-                    html.A(dbc.Button("View MASST Search", color="info", n_clicks=0),
+                    dbc.Button("Copy Link", color="warning", id="copy_link_button", n_clicks=0),
+                ]),
+                dbc.Col([
+                    html.A(dbc.Button("View External MASST Search", color="warning", n_clicks=0),
                         id="link_to_masst", href="", target="_blank"),
                 ])]
             ),
@@ -140,7 +190,7 @@ BODY = dbc.Container(
         dbc.Row([
             dbc.Col(
                 dbc.Card(LEFT_DASHBOARD),
-                className="col-6"
+                className="col-9"
             ),
             dbc.Col(
                 [
@@ -148,7 +198,7 @@ BODY = dbc.Container(
                     # html.Br(),
                     # dbc.Card(EXAMPLES_DASHBOARD)
                 ],
-                className="col-6"
+                className="col-3"
             ),
         ], style={"marginTop": 30}),
         html.Br(),
@@ -189,15 +239,18 @@ def determine_task(search):
                 Output('output', 'children')
               ],
               [
-                  Input('usi1', 'value'),
-                #   Input('prec_mz_tol', 'value'),
-                #   Input('mz_tol', 'value'),
+                Input('search_button', 'n_clicks'),
+              ],
+              [
+                State('usi1', 'value'),
+                State('pm_tolerance', 'value'),
+                State('fragment_tolerance', 'value'),
                 #   Input('min_cos', 'value'),
                 #   Input('min_matched_signals', 'value'),
                 #   Input('use_analog', 'value'),
                 #   Input('analog_mass_below', 'value'),
                 #   Input('analog_mass_above', 'value')
-            ])
+              ])
 # def draw_output(usi1,
 #              prec_mz_tol,
 #              ms2_mz_tol,
@@ -206,7 +259,16 @@ def determine_task(search):
 #              use_analog,
 #              analog_mass_below,
 #              analog_mass_above):
-def draw_output(usi1):
+def draw_output(
+                search_button,
+                usi1, 
+                prec_mz_tol,
+                ms2_mz_tol):
+
+    # This is on load
+    if search_button == 0:
+        return [dash.no_update]
+
     # For MicrobeMASST code from robin
     # import sys
     # sys.path.insert(0, "microbe_masst/code/")
@@ -219,8 +281,8 @@ def draw_output(usi1):
 
     out_file = "../../{}/fastMASST".format(output_temp)
 
-    prec_mz_tol = 0.05
-    ms2_mz_tol = 0.05
+    #prec_mz_tol = 0.05
+    #ms2_mz_tol = 0.05
     min_cos = 0.7
     min_matched_signals = 6
     use_analog = False
