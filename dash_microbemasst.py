@@ -342,7 +342,7 @@ def draw_output(
     elif button_id == "search_button_peaks":
         # Writing out the MGF file if we are using peaks
         print("USING PEAKS")
-        mgf_string = """BEGIN ION
+        mgf_string = """BEGIN IONS
 PEPMASS={}
 MSLEVEL=2
 CHARGE=1
