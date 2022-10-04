@@ -318,6 +318,10 @@ def draw_output(
     #analog_mass_below = 100
     #analog_mass_above = 150
 
+    # If USI is a list
+    if len(usi1) == 1:
+        usi1 = usi1[0]
+
     if button_id == "search_button_usi":
         cmd = 'cd microbe_masst/code/ && python masst_client.py \
         --usi_or_lib_id "{}" \
