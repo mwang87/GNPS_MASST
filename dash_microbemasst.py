@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 import dash
+import werkzeug.utils
 from dash import dcc, html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import os
 import urllib.parse
-from flask import Flask, send_from_directory, request
+from flask import Flask, send_file, request
 
 import urllib
 
@@ -189,38 +190,54 @@ def determine_task(search):
               ],
               [
                   Input('usi1', 'value'),
+                  Input('prec_mz_tol', 'value'),
+                  Input('mz_tol', 'value'),
+                  Input('min_cos', 'value'),
+                  Input('min_matched_signals', 'value'),
+                  Input('use_analog', 'value'),
+                  Input('analog_mass_below', 'value'),
+                  Input('analog_mass_above', 'value')
             ])
-def draw_output(usi1):
+def draw_output(usi1,
+             prec_mz_tol,
+             mz_tol,
+             min_cos,
+             min_matched_signals,
+             use_analog,
+             analog_mass_below,
+             analog_mass_above):
     # For MicrobeMASST code from robin
     # import sys
     # sys.path.insert(0, "microbe_masst/code/")
     # import microbe_masst
-
-    # # Doing MicrobeMASST here
-    # microbe_masst.run_microbe_masst(usi1, 0.05, 0.02, 0.7,
-    #         # tree generation
-    #         in_html="./microbe_masst/code/collapsible_tree_v3.html", 
-    #         in_ontology="./microbe_masst/data/ncbi.json", 
-    #         metadata_file="./microbe_masst/data/microbe_masst_table.csv",
-    #         out_counts_file="./temp/microbemasst/counts.tsv",
-    #         out_json_tree="./temp/microbemasst/tree.json", format_out_json=True, 
-    #         out_html="./temp/microbemasst/oneindex.html", compress_out_html=True,
-    #         node_key="NCBI", data_key="ncbi")
 
     import uuid
     mangling = str(uuid.uuid4())
     output_temp = os.path.join("temp", "microbemasst", mangling)
     os.makedirs(output_temp, exist_ok=True)
 
-    output_html = "../../{}/oneindex.html".format(output_temp)
-    output_tree = "../../{}/tree.json".format(output_temp)
-    output_counts = "../../{}/counts.tsv".format(output_temp)
+    out_file = "../../{}/fastMASST".format(output_temp)
 
-    cmd = 'cd microbe_masst/code/ && python microbe_masst.py \
+    cmd = 'cd microbe_masst/code/ && python masst_client.py \
     --usi_or_lib_id "{}" \
-    --out_html "{}" \
-    --out_tree "{}" \
-    --out_counts_file "{}"'.format(usi1, output_html, output_tree, output_counts)
+    --out_file "{}" \
+    --precursor_mz_tol {} \
+    --mz_tol {} \
+    --min_cos {} \
+    --min_matched_signals {} \
+    --analog {} \
+    --analog_mass_below {} \
+    --analog_mass_above {} \
+    '.format(usi1,
+             out_file,
+             prec_mz_tol,
+             mz_tol,
+             min_cos,
+             min_matched_signals,
+             use_analog,
+             analog_mass_below,
+             analog_mass_above
+             )
     import sys
     print(cmd, file=sys.stderr, flush=True)
     os.system(cmd)
@@ -327,10 +344,14 @@ dash_app.clientside_callback(
 # API
 @app.route("/microbemasst/results")
 def results():
-    task = request.args.get("task")
-    output_folder = os.path.join("temp", "microbemasst", os.path.basename(task))
+    html_file = microbe_masst_path(request.args.get("task"))
+    return send_file(html_file)
 
-    return send_from_directory(output_folder, "oneindex.html")
+def microbe_masst_path(task):
+    task_path = os.path.basename(task)
+    output_folder = os.path.join("temp", "microbemasst", task_path, "fastMASST_microbe.html")
+    return output_folder
+
 
 if __name__ == "__main__":
     app.run_server(debug=True, port=5000, host="0.0.0.0")
