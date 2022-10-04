@@ -1,36 +1,16 @@
 # -*- coding: utf-8 -*-
 import dash
-import dash_core_components as dcc
+from dash import dcc, html
 import dash_bootstrap_components as dbc
-import dash_html_components as html
-import dash_table
-import plotly.express as px
-import plotly.graph_objects as go 
 from dash.dependencies import Input, Output, State
 import os
-from zipfile import ZipFile
 import urllib.parse
 from flask import Flask, send_from_directory, request
 
-import pandas as pd
-import requests
-import uuid
-import werkzeug
-
-import numpy as np
-from tqdm import tqdm
 import urllib
-import json
-
-from collections import defaultdict
-import uuid
 
 from flask_caching import Cache
-import tasks
-
 from app import app
-
-
 
 dash_app = dash.Dash(
     name="dashinterface",
@@ -39,7 +19,7 @@ dash_app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP],
 )
 
-dash_app.title = 'Microbe MASST'
+dash_app.title = 'microbeMASST'
 
 cache = Cache(dash_app.server, config={
     'CACHE_TYPE': 'filesystem',
@@ -56,7 +36,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("MicrobeMASST Dashboard - Version 0.1", href="/microbemasst")),
+                dbc.NavItem(dbc.NavLink("microbeMASST Dashboard - Version 1.0", href="/microbemasst")),
             ],
         navbar=True)
     ],
@@ -132,13 +112,12 @@ CONTRIBUTORS_DASHBOARD = [
     dbc.CardHeader(html.H5("Contributors")),
     dbc.CardBody(
         [
-            "Mingxun Wang PhD - UC San Diego",
+            "Mingxun Wang PhD - UC Riverside",
             html.Br(),
             "Robin Schmid PhD - UC San Diego",
             html.Br(),
-            # html.H5("Citation"),
-            # html.A('Mingxun Wang, Jeremy J. Carver, Vanessa V. Phelan, Laura M. Sanchez, Neha Garg, Yao Peng, Don Duy Nguyen et al. "Sharing and community curation of mass spectrometry data with Global Natural Products Social Molecular Networking." Nature biotechnology 34, no. 8 (2016): 828. PMID: 27504778', 
-            #         href="https://www.nature.com/articles/nbt.3597")
+            "Simone Zuffa PhD - UC San Diego",
+            html.Br(),
         ]
     )
 ]
