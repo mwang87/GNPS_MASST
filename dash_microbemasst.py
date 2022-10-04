@@ -318,7 +318,6 @@ def draw_output(
     #analog_mass_below = 100
     #analog_mass_above = 150
 
-    # Writing out the MGF file if we are using peaks
     if button_id == "search_button_usi":
         cmd = 'cd microbe_masst/code/ && python masst_client.py \
         --usi_or_lib_id "{}" \
@@ -341,13 +340,20 @@ def draw_output(
                 analog_mass_above
                 )
     elif button_id == "search_button_peaks":
+        # Writing out the MGF file if we are using peaks
         print("USING PEAKS")
-        return [peaks]
+        mgf_string = """BEGIN ION
+PEPMASS={}
+MSLEVEL=2
+CHARGE=1
+{}
+END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
+        
+        mgf_filename = os.path.join(output_temp, "input_spectra.mgf")
+        with open(mgf_filename, "w") as o:
+            o.write(mgf_string)
 
-        mgf_filename = out_file + "_input_spectra.mgf"
-
-
-        cmd = 'cd microbe_masst/code/ && python masst_client.py \
+        cmd = 'cd microbe_masst/code/ && python masst_batch_client.py \
         --in_file "{}" \
         --out_file "{}" \
         --parallel_queries 1 \
@@ -358,7 +364,7 @@ def draw_output(
         --analog {} \
         --analog_mass_below {} \
         --analog_mass_above {} \
-        '.format(mgf_filename,
+        '.format(os.path.join("../..", mgf_filename),
                 out_file,
                 prec_mz_tol,
                 ms2_mz_tol,
