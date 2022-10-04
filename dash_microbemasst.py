@@ -51,6 +51,8 @@ DATASELECTION_CARD = [
     dbc.CardBody(
         [   
             html.H5(children='GNPS Data Selection - Enter USI or Spectrum Peaks'),
+            html.Br(),
+            html.Br(),
             dbc.InputGroup(
                 [
                     dbc.InputGroupText("Spectrum USI"),
@@ -84,6 +86,8 @@ DATASELECTION_CARD = [
                     dbc.Input(id='fragment_tolerance', type='number', placeholder="fragment_tolerance", value=0.05,min = 0.05, max = 0.4, step=0.05),
                     dbc.InputGroupText("Cosine Threshold"),
                     dbc.Input(id='cosine_threshold', type='number', placeholder="cosine_threshold", value=0.7, min=0.5, max=1.0, step=0.05),
+                    dbc.InputGroupText("Minimum Matched Peaks"),
+                    dbc.Input(id='min_matched_peaks', type='number', placeholder="min_matched_peaks", value=3, min=1, max=1000, step=1),
                 ],
                 className="mb-3",
             ),
@@ -107,14 +111,27 @@ DATASELECTION_CARD = [
             ),
             dbc.Row([
                 dbc.Col([
-                    dbc.Button("Search MicrobeMASST", color="warning", id="search_button", n_clicks=0),
+                    html.Div(
+                        dbc.Button("Search microbeMASST by USI", color="warning", id="search_button_usi", n_clicks=0),
+                        className="d-grid gap-2",
+                    )
                 ]),
                 dbc.Col([
-                    dbc.Button("Copy Link", color="warning", id="copy_link_button", n_clicks=0),
+                    html.Div(
+                        dbc.Button("Search microbeMASST by Spectrum Peaks", color="warning", id="search_button_peaks", n_clicks=0),
+                        className="d-grid gap-2",
+                    )
                 ]),
                 dbc.Col([
-                    html.A(dbc.Button("View External MASST Search", color="warning", n_clicks=0),
-                        id="link_to_masst", href="", target="_blank"),
+                    html.Div(
+                        dbc.Button("Copy Link", color="warning", id="copy_link_button", n_clicks=0),
+                        className="d-grid gap-2",
+                    )
+                ]),
+                dbc.Col([
+                    html.A( html.Div(
+                        dbc.Button("Open External MASST Search Results", color="warning", n_clicks=0),
+                        className="d-grid gap-2"), id="link_to_masst", href="", target="_blank"), 
                 ])]
             ),
             html.Div(
@@ -177,9 +194,7 @@ EXAMPLES_DASHBOARD = [
     dbc.CardHeader(html.H5("Examples")),
     dbc.CardBody(
         [
-            html.A('Stenothricin', 
-                    href="/microbemasst?usi1=mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00005436027"),
-            
+            dbc.Button("Example Molecule", id="example_molecule1", n_clicks=0)
         ]
     )
 ]
@@ -195,8 +210,8 @@ BODY = dbc.Container(
             dbc.Col(
                 [
                     dbc.Card(CONTRIBUTORS_DASHBOARD),
-                    # html.Br(),
-                    # dbc.Card(EXAMPLES_DASHBOARD)
+                    html.Br(),
+                    dbc.Card(EXAMPLES_DASHBOARD)
                 ],
                 className="col-3"
             ),
@@ -216,7 +231,8 @@ def _get_url_param(param_dict, key, default):
     return param_dict.get(key, [default])[0]
 
 @dash_app.callback([
-                Output('usi1', 'value'), 
+                Output('usi1', 'value'),
+                Output('peaks', 'value')
               ],
               [
                   Input('url', 'search')
@@ -230,7 +246,7 @@ def determine_task(search):
 
     usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00000085687')
 
-    return [usi1]
+    return [usi1, ""]
 
 
 
@@ -239,34 +255,36 @@ def determine_task(search):
                 Output('output', 'children')
               ],
               [
-                Input('search_button', 'n_clicks'),
+                Input('search_button_usi', 'n_clicks'),
+                Input('search_button_peaks', 'n_clicks'),
               ],
               [
                 State('usi1', 'value'),
                 State('pm_tolerance', 'value'),
                 State('fragment_tolerance', 'value'),
-                #   Input('min_cos', 'value'),
-                #   Input('min_matched_signals', 'value'),
-                #   Input('use_analog', 'value'),
-                #   Input('analog_mass_below', 'value'),
-                #   Input('analog_mass_above', 'value')
+                State('cosine_threshold', 'value'),
+                State('min_matched_peaks', 'value'),
+                State('analog_select', 'value'),
+                State('delta_mass_below', 'value'),
+                State('delta_mass_above', 'value')
               ])
-# def draw_output(usi1,
-#              prec_mz_tol,
-#              ms2_mz_tol,
-#              min_cos,
-#              min_matched_signals,
-#              use_analog,
-#              analog_mass_below,
-#              analog_mass_above):
 def draw_output(
-                search_button,
+                search_button_usi,
+                search_button_peaks,
                 usi1, 
                 prec_mz_tol,
-                ms2_mz_tol):
+                ms2_mz_tol,
+                min_cos,
+                min_matched_peaks,
+                use_analog,
+                analog_mass_below,
+                analog_mass_above):
+
+    import sys
+    print("HERE", search_button_usi, file=sys.stderr)
 
     # This is on load
-    if search_button == 0:
+    if search_button_usi == 0 and search_button_peaks == 0:
         return [dash.no_update]
 
     # For MicrobeMASST code from robin
@@ -283,11 +301,13 @@ def draw_output(
 
     #prec_mz_tol = 0.05
     #ms2_mz_tol = 0.05
-    min_cos = 0.7
-    min_matched_signals = 6
-    use_analog = False
-    analog_mass_below = 100
-    analog_mass_above = 150
+    #min_cos = 0.7
+    #min_matched_signals = 6
+    use_analog = use_analog == "Yes"
+    #analog_mass_below = 100
+    #analog_mass_above = 150
+
+    # Writing out the MGF file if we are using peaks
 
     cmd = 'cd microbe_masst/code/ && python masst_client.py \
     --usi_or_lib_id "{}" \
@@ -304,7 +324,7 @@ def draw_output(
              prec_mz_tol,
              ms2_mz_tol,
              min_cos,
-             min_matched_signals,
+             min_matched_peaks,
              use_analog,
              analog_mass_below,
              analog_mass_above
