@@ -25,3 +25,4 @@ anytree
 pronto
 lxml
 minify_html
+pyteomics
