@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import dash
 import werkzeug.utils
-from dash import dcc, html
+from dash import dcc, html, ctx
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import os
@@ -265,6 +265,8 @@ def determine_task(search):
               ],
               [
                 State('usi1', 'value'),
+                State('peaks', 'value'),
+                State('precursor_mz', 'value'),
                 State('pm_tolerance', 'value'),
                 State('fragment_tolerance', 'value'),
                 State('cosine_threshold', 'value'),
@@ -276,7 +278,9 @@ def determine_task(search):
 def draw_output(
                 search_button_usi,
                 search_button_peaks,
-                usi1, 
+                usi1,
+                peaks, 
+                precursor_mz,
                 prec_mz_tol,
                 ms2_mz_tol,
                 min_cos,
@@ -285,8 +289,10 @@ def draw_output(
                 analog_mass_below,
                 analog_mass_above):
 
+    button_id = ctx.triggered_id if not None else 'No clicks yet'
+
     import sys
-    print("HERE", search_button_usi, file=sys.stderr)
+    print("HERE", search_button_usi, button_id, file=sys.stderr)
 
     # This is on load
     if search_button_usi == 0 and search_button_peaks == 0:
@@ -313,27 +319,56 @@ def draw_output(
     #analog_mass_above = 150
 
     # Writing out the MGF file if we are using peaks
+    if button_id == "search_button_usi":
+        cmd = 'cd microbe_masst/code/ && python masst_client.py \
+        --usi_or_lib_id "{}" \
+        --out_file "{}" \
+        --precursor_mz_tol {} \
+        --mz_tol {} \
+        --min_cos {} \
+        --min_matched_signals {} \
+        --analog {} \
+        --analog_mass_below {} \
+        --analog_mass_above {} \
+        '.format(usi1,
+                out_file,
+                prec_mz_tol,
+                ms2_mz_tol,
+                min_cos,
+                min_matched_peaks,
+                use_analog,
+                analog_mass_below,
+                analog_mass_above
+                )
+    elif button_id == "search_button_peaks":
+        print("USING PEAKS")
+        return [peaks]
 
-    cmd = 'cd microbe_masst/code/ && python masst_client.py \
-    --usi_or_lib_id "{}" \
-    --out_file "{}" \
-    --precursor_mz_tol {} \
-    --mz_tol {} \
-    --min_cos {} \
-    --min_matched_signals {} \
-    --analog {} \
-    --analog_mass_below {} \
-    --analog_mass_above {} \
-    '.format(usi1,
-             out_file,
-             prec_mz_tol,
-             ms2_mz_tol,
-             min_cos,
-             min_matched_peaks,
-             use_analog,
-             analog_mass_below,
-             analog_mass_above
-             )
+        mgf_filename = out_file + "_input_spectra.mgf"
+
+
+        cmd = 'cd microbe_masst/code/ && python masst_client.py \
+        --in_file "{}" \
+        --out_file "{}" \
+        --parallel_queries 1 \
+        --precursor_mz_tol {} \
+        --mz_tol {} \
+        --min_cos {} \
+        --min_matched_signals {} \
+        --analog {} \
+        --analog_mass_below {} \
+        --analog_mass_above {} \
+        '.format(mgf_filename,
+                out_file,
+                prec_mz_tol,
+                ms2_mz_tol,
+                min_cos,
+                min_matched_peaks,
+                use_analog,
+                analog_mass_below,
+                analog_mass_above
+                )
+
     import sys
     print(cmd, file=sys.stderr, flush=True)
     os.system(cmd)
