@@ -6,7 +6,7 @@ from tqdm import tqdm
 #requests_cache.install_cache('demo_cache')
 
 def query_usi(usi, database, analog=False, precursor_mz_tol=0.02, fragment_mz_tol=0.02, min_cos=0.7):
-    URL = "https://fastlibrarysearch.ucsd.edu/search"
+    URL = "https://fasst.gnps2.org/search"
 
     params = {
         "usi": usi,

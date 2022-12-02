@@ -37,7 +37,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("microbeMASST Dashboard - Version 1.0", href="/microbemasst")),
+                dbc.NavItem(dbc.NavLink("microbeMASST Dashboard - Version 1.1", href="/microbemasst")),
             ],
         navbar=True)
     ],
@@ -49,7 +49,7 @@ NAVBAR = dbc.Navbar(
 DATASELECTION_CARD = [
     dbc.CardHeader(html.H5("Data Selection")),
     dbc.CardBody(
-        [   
+        [
             html.H5(children='GNPS Data Selection - Enter USI or Spectrum Peaks'),
             html.Br(),
             html.Br(),
@@ -131,7 +131,7 @@ DATASELECTION_CARD = [
                 dbc.Col([
                     html.A( html.Div(
                         dbc.Button("Open External MASST Search Results", color="warning", n_clicks=0),
-                        className="d-grid gap-2"), id="link_to_masst", href="", target="_blank"), 
+                        className="d-grid gap-2"), id="link_to_masst", href="", target="_blank"),
                 ])]
             ),
             html.Div(
@@ -241,7 +241,7 @@ def _get_url_param(param_dict, key, default):
                   Input('url', 'hash')
               ])
 def determine_task(search):
-    
+
     try:
         query_dict = json.loads(urllib.parse.unquote(search[1:]))
     except:
@@ -279,7 +279,7 @@ def draw_output(
                 search_button_usi,
                 search_button_peaks,
                 usi1,
-                peaks, 
+                peaks,
                 precursor_mz,
                 prec_mz_tol,
                 ms2_mz_tol,
@@ -310,13 +310,8 @@ def draw_output(
 
     out_file = "../../{}/fastMASST".format(output_temp)
 
-    #prec_mz_tol = 0.05
-    #ms2_mz_tol = 0.05
-    #min_cos = 0.7
-    #min_matched_signals = 6
+    # TODO seems to always run analog
     use_analog = use_analog == "Yes"
-    #analog_mass_below = 100
-    #analog_mass_above = 150
 
     # If USI is a list
     if len(usi1) == 1:
@@ -352,7 +347,7 @@ MSLEVEL=2
 CHARGE=1
 {}
 END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
-        
+
         mgf_filename = os.path.join(output_temp, "input_spectra.mgf")
         with open(mgf_filename, "w") as o:
             o.write(mgf_string)
@@ -382,7 +377,7 @@ END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
     import sys
     print(cmd, file=sys.stderr, flush=True)
     os.system(cmd)
-    
+
     return [html.Iframe(src="/microbemasst/results?task={}".format(mangling), width="100%", height="900px")]
 
 @dash_app.callback([
@@ -451,7 +446,7 @@ def draw_url(usi1):
 
     url_params = urllib.parse.urlencode(params)
 
-    return ["https://fastlibrarysearch.ucsd.edu/fastsearch/?" + url_params]
+    return ["https://fasst.gnps2.org/fastsearch/?" + url_params]
 
 
 dash_app.clientside_callback(
@@ -493,9 +488,24 @@ def results():
     return send_file(html_file)
 
 def microbe_masst_path(task):
+    """
+    actual file found - success and matches to microbeMASST,
+    matches file found - success but no matches,
+    no success - just placeholder to show error,
+    :param task: taskid
+    :return: the html file that matches the state
+    """
     task_path = os.path.basename(task)
-    output_folder = os.path.join("temp", "microbemasst", task_path, "fastMASST_microbe.html")
-    return output_folder
+    output_folder = os.path.join("temp", "microbemasst", task_path)
+    html_file = os.path.join(output_folder, "fastMASST_microbe.html")
+    if os.path.isfile(html_file):
+        return html_file
+    elif os.path.isfile(os.path.join(output_folder, "fastMASST_matches.tsv")):
+        return os.path.join("html_results", "succes_no_matches_to_microbe.html")
+    else:
+        return os.path.join("html_results", "error_microbe.html")
+
+
 
 
 if __name__ == "__main__":
