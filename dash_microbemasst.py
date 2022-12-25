@@ -37,7 +37,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("microbeMASST Dashboard - Version 1.0", href="/microbemasst")),
+                dbc.NavItem(dbc.NavLink("microbeMASST Dashboard - Version 1.1", href="/microbemasst")),
             ],
         navbar=True)
     ],
@@ -49,7 +49,7 @@ NAVBAR = dbc.Navbar(
 DATASELECTION_CARD = [
     dbc.CardHeader(html.H5("Data Selection")),
     dbc.CardBody(
-        [   
+        [
             html.H5(children='GNPS Data Selection - Enter USI or Spectrum Peaks'),
             html.Br(),
             html.Br(),
@@ -131,7 +131,7 @@ DATASELECTION_CARD = [
                 dbc.Col([
                     html.A( html.Div(
                         dbc.Button("Open External MASST Search Results", color="warning", n_clicks=0),
-                        className="d-grid gap-2"), id="link_to_masst", href="", target="_blank"), 
+                        className="d-grid gap-2"), id="link_to_masst", href="", target="_blank"),
                 ])]
             ),
             html.Div(
@@ -196,7 +196,30 @@ EXAMPLES_DASHBOARD = [
     dbc.CardHeader(html.H5("Examples")),
     dbc.CardBody(
         [
-            html.A("Example Molecule", id="example_molecule1", href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00000085687%22%5D%2C%20%22peaks%22%3A%20%2280.94821%5Ct7964.9106%5Cn81.07002%5Ct8971.145%5Cn83.086006%5Ct3202.9917%5Cn85.06494%5Ct11110.859%5Cn90.97681%5Ct13512.115%5Cn91.05407%5Ct4261.0435%5Cn93.06991%5Ct9205.178%5Cn95.08565%5Ct14519.592%5Cn103.05421%5Ct4894.4756%5Cn105.07022%5Ct18651.326%5Cn107.085655%5Ct13574.504%5Cn109.10135%5Ct10270.613%5Cn119.08573%5Ct11157.091%5Cn120.08088%5Ct221964.84%5Cn121.10135%5Ct8484.143%5Cn123.08051%5Ct7757.252%5Cn123.11662%5Ct6180.583%5Cn125.09632%5Ct8554.115%5Cn131.04897%5Ct5342.3145%5Cn131.08565%5Ct8830.906%5Cn133.1012%5Ct14499.361%5Cn135.11697%5Ct7826.523%5Cn137.09662%5Ct3308.8342%5Cn143.08559%5Ct8934.355%5Cn145.10161%5Ct15179.775%5Cn147.1171%5Ct12624.565%5Cn149.05942%5Ct5136.6265%5Cn149.09752%5Ct3545.7485%5Cn155.08594%5Ct3597.0366%5Cn157.10156%5Ct17111.832%5Cn158.96388%5Ct16269.059%5Cn159.11728%5Ct21265.994%5Cn161.13286%5Ct13106.975%5Cn163.11238%5Ct4724.445%5Cn163.88464%5Ct3307.1091%5Cn164.93143%5Ct3316.7693%5Cn166.08643%5Ct343150.66%5Cn169.10081%5Ct4978.5405%5Cn171.1173%5Ct16191.34%5Cn173.13289%5Ct9658.38%5Cn175.11165%5Ct3796.6746%5Cn181.10126%5Ct5202.631%5Cn183.11746%5Ct9410.617%5Cn185.13248%5Ct10079.273%5Cn187.11198%5Ct6951.734%5Cn187.14844%5Ct6882.854%5Cn189.12732%5Ct6969.42%5Cn189.16422%5Ct3857.043%5Cn190.10503%5Ct3302.049%5Cn195.11647%5Ct4379.094%5Cn197.13237%5Ct8527.008%5Cn199.14832%5Ct33320.46%5Cn201.16425%5Ct9311.901%5Cn202.12257%5Ct7010.554%5Cn203.14282%5Ct3477.1448%5Cn209.13268%5Ct79797.53%5Cn211.14864%5Ct17406.05%5Cn213.1636%5Ct41344.633%5Cn215.14247%5Ct4830.4175%5Cn215.17964%5Ct8076.428%5Cn216.92337%5Ct14960.939%5Cn223.14853%5Ct21175.191%5Cn225.16386%5Ct21953.17%5Cn226.95168%5Ct22947.79%5Cn227.1435%5Ct47863.613%5Cn227.17917%5Ct30053.355%5Cn229.15894%5Ct15989.257%5Cn231.17638%5Ct5512.4907%5Cn237.16281%5Ct15475.934%5Cn239.18%5Ct10031.895%5Cn241.15839%5Ct11053.998%5Cn241.19487%5Ct17048.861%5Cn243.1748%5Ct12207.303%5Cn248.12822%5Ct51872.527%5Cn249.16403%5Ct7189.1157%5Cn251.17932%5Ct4746.559%5Cn253.19557%5Ct4837.2207%5Cn255.17413%5Ct17253.908%5Cn263.1798%5Ct9416.583%5Cn277.19507%5Ct7972.8696%5Cn279.211%5Ct4387.4307%5Cn281.1903%5Ct5729.192%5Cn288.15817%5Ct4419.695%5Cn293.22647%5Ct9807.555%5Cn295.20596%5Ct20866.555%5Cn295.24225%5Ct13296.892%5Cn309.22437%5Ct4090.7576%5Cn309.25928%5Ct10990.491%5Cn311.92468%5Ct4586.2993%5Cn319.24237%5Ct127415.27%5Cn337.2529%5Ct267401.4%5Cn355.26404%5Ct8754.0625%5Cn456.32526%5Ct8601.617%5Cn484.3201%5Ct5518.0684%5Cn502.33197%5Ct303219.62%5Cn520.3417%5Ct36472.902%22%2C%20%22precursor_mz%22%3A%20%22556.363%22%7D")
+            html.A("lovastatin", id="example_molecule1", href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3A"
+                                                                    "CCMSLIB00005435737"),
+            html.A("mevastatin", id="example_molecule2", href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3A"
+                                                                    "CCMSLIB00005435644"),
+            html.A("arylomycin A4", id="example_molecule3",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00000075066"),
+            html.A("salinosporamide A", id="example_molecule4",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00005721043"),
+            html.A("yersiniabactin", id="example_molecule5",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00005435750"),
+            html.A("promicroferrioxamine", id="example_molecule6",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00005716848"),
+            html.A("glutamate-cholic acid (Glu-CA)", id="example_molecule7",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00006582258"),
+            html.A("glutamate-deoxycholic acid (Glu-DCA)", id="example_molecule8",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00006582092"),
+            html.A("ornitine-deoxycholic acid (Orn-DCA)", id="example_molecule9",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00006582109"),
+            html.A("citrulline-deoxycholic acid (Cit-DCA)", id="example_molecule10",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00006582368"),
+            html.A("commendamide", id="example_molecule11",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00004679239"),
+            html.A("Example Molecule", id="example_molecule12",
+                   href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00000085687%22%5D%2C%20%22peaks%22%3A%20%2280.94821%5Ct7964.9106%5Cn81.07002%5Ct8971.145%5Cn83.086006%5Ct3202.9917%5Cn85.06494%5Ct11110.859%5Cn90.97681%5Ct13512.115%5Cn91.05407%5Ct4261.0435%5Cn93.06991%5Ct9205.178%5Cn95.08565%5Ct14519.592%5Cn103.05421%5Ct4894.4756%5Cn105.07022%5Ct18651.326%5Cn107.085655%5Ct13574.504%5Cn109.10135%5Ct10270.613%5Cn119.08573%5Ct11157.091%5Cn120.08088%5Ct221964.84%5Cn121.10135%5Ct8484.143%5Cn123.08051%5Ct7757.252%5Cn123.11662%5Ct6180.583%5Cn125.09632%5Ct8554.115%5Cn131.04897%5Ct5342.3145%5Cn131.08565%5Ct8830.906%5Cn133.1012%5Ct14499.361%5Cn135.11697%5Ct7826.523%5Cn137.09662%5Ct3308.8342%5Cn143.08559%5Ct8934.355%5Cn145.10161%5Ct15179.775%5Cn147.1171%5Ct12624.565%5Cn149.05942%5Ct5136.6265%5Cn149.09752%5Ct3545.7485%5Cn155.08594%5Ct3597.0366%5Cn157.10156%5Ct17111.832%5Cn158.96388%5Ct16269.059%5Cn159.11728%5Ct21265.994%5Cn161.13286%5Ct13106.975%5Cn163.11238%5Ct4724.445%5Cn163.88464%5Ct3307.1091%5Cn164.93143%5Ct3316.7693%5Cn166.08643%5Ct343150.66%5Cn169.10081%5Ct4978.5405%5Cn171.1173%5Ct16191.34%5Cn173.13289%5Ct9658.38%5Cn175.11165%5Ct3796.6746%5Cn181.10126%5Ct5202.631%5Cn183.11746%5Ct9410.617%5Cn185.13248%5Ct10079.273%5Cn187.11198%5Ct6951.734%5Cn187.14844%5Ct6882.854%5Cn189.12732%5Ct6969.42%5Cn189.16422%5Ct3857.043%5Cn190.10503%5Ct3302.049%5Cn195.11647%5Ct4379.094%5Cn197.13237%5Ct8527.008%5Cn199.14832%5Ct33320.46%5Cn201.16425%5Ct9311.901%5Cn202.12257%5Ct7010.554%5Cn203.14282%5Ct3477.1448%5Cn209.13268%5Ct79797.53%5Cn211.14864%5Ct17406.05%5Cn213.1636%5Ct41344.633%5Cn215.14247%5Ct4830.4175%5Cn215.17964%5Ct8076.428%5Cn216.92337%5Ct14960.939%5Cn223.14853%5Ct21175.191%5Cn225.16386%5Ct21953.17%5Cn226.95168%5Ct22947.79%5Cn227.1435%5Ct47863.613%5Cn227.17917%5Ct30053.355%5Cn229.15894%5Ct15989.257%5Cn231.17638%5Ct5512.4907%5Cn237.16281%5Ct15475.934%5Cn239.18%5Ct10031.895%5Cn241.15839%5Ct11053.998%5Cn241.19487%5Ct17048.861%5Cn243.1748%5Ct12207.303%5Cn248.12822%5Ct51872.527%5Cn249.16403%5Ct7189.1157%5Cn251.17932%5Ct4746.559%5Cn253.19557%5Ct4837.2207%5Cn255.17413%5Ct17253.908%5Cn263.1798%5Ct9416.583%5Cn277.19507%5Ct7972.8696%5Cn279.211%5Ct4387.4307%5Cn281.1903%5Ct5729.192%5Cn288.15817%5Ct4419.695%5Cn293.22647%5Ct9807.555%5Cn295.20596%5Ct20866.555%5Cn295.24225%5Ct13296.892%5Cn309.22437%5Ct4090.7576%5Cn309.25928%5Ct10990.491%5Cn311.92468%5Ct4586.2993%5Cn319.24237%5Ct127415.27%5Cn337.2529%5Ct267401.4%5Cn355.26404%5Ct8754.0625%5Cn456.32526%5Ct8601.617%5Cn484.3201%5Ct5518.0684%5Cn502.33197%5Ct303219.62%5Cn520.3417%5Ct36472.902%22%2C%20%22precursor_mz%22%3A%20%22556.363%22%7D")
         ]
     )
 ]
@@ -241,7 +264,7 @@ def _get_url_param(param_dict, key, default):
                   Input('url', 'hash')
               ])
 def determine_task(search):
-    
+
     try:
         query_dict = json.loads(urllib.parse.unquote(search[1:]))
     except:
@@ -279,7 +302,7 @@ def draw_output(
                 search_button_usi,
                 search_button_peaks,
                 usi1,
-                peaks, 
+                peaks,
                 precursor_mz,
                 prec_mz_tol,
                 ms2_mz_tol,
@@ -310,13 +333,8 @@ def draw_output(
 
     out_file = "../../{}/fastMASST".format(output_temp)
 
-    #prec_mz_tol = 0.05
-    #ms2_mz_tol = 0.05
-    #min_cos = 0.7
-    #min_matched_signals = 6
+    # TODO seems to always run analog
     use_analog = use_analog == "Yes"
-    #analog_mass_below = 100
-    #analog_mass_above = 150
 
     # If USI is a list
     if len(usi1) == 1:
@@ -352,7 +370,7 @@ MSLEVEL=2
 CHARGE=1
 {}
 END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
-        
+
         mgf_filename = os.path.join(output_temp, "input_spectra.mgf")
         with open(mgf_filename, "w") as o:
             o.write(mgf_string)
@@ -382,7 +400,7 @@ END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
     import sys
     print(cmd, file=sys.stderr, flush=True)
     os.system(cmd)
-    
+
     return [html.Iframe(src="/microbemasst/results?task={}".format(mangling), width="100%", height="900px")]
 
 @dash_app.callback([
@@ -451,7 +469,7 @@ def draw_url(usi1):
 
     url_params = urllib.parse.urlencode(params)
 
-    return ["https://fastlibrarysearch.ucsd.edu/fastsearch/?" + url_params]
+    return ["https://fasst.gnps2.org/fastsearch/?" + url_params]
 
 
 dash_app.clientside_callback(
@@ -493,9 +511,24 @@ def results():
     return send_file(html_file)
 
 def microbe_masst_path(task):
+    """
+    actual file found - success and matches to microbeMASST,
+    matches file found - success but no matches,
+    no success - just placeholder to show error,
+    :param task: taskid
+    :return: the html file that matches the state
+    """
     task_path = os.path.basename(task)
-    output_folder = os.path.join("temp", "microbemasst", task_path, "fastMASST_microbe.html")
-    return output_folder
+    output_folder = os.path.join("temp", "microbemasst", task_path)
+    html_file = os.path.join(output_folder, "fastMASST_microbe.html")
+    if os.path.isfile(html_file):
+        return html_file
+    elif os.path.isfile(os.path.join(output_folder, "fastMASST_matches.tsv")):
+        return os.path.join("html_results", "succes_no_matches_to_microbe.html")
+    else:
+        return os.path.join("html_results", "error_microbe.html")
+
+
 
 
 if __name__ == "__main__":
