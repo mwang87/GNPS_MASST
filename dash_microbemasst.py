@@ -360,7 +360,6 @@ def draw_output(
         --mz_tol {} \
         --min_cos {} \
         --min_matched_signals {} \
-        --analog {} \
         --analog_mass_below {} \
         --analog_mass_above {} \
         '.format(usi1,
@@ -369,10 +368,15 @@ def draw_output(
                 ms2_mz_tol,
                 min_cos,
                 min_matched_peaks,
-                use_analog,
                 analog_mass_below,
                 analog_mass_above
                 )
+
+        # Tacking on the analog flag
+        if user_analog:
+            cmd += " --analog {}"
+
+
     elif button_id == "search_button_peaks":
         # Writing out the MGF file if we are using peaks
         print("USING PEAKS")
