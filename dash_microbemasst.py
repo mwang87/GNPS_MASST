@@ -373,7 +373,7 @@ def draw_output(
                 )
 
         # Tacking on the analog flag
-        if user_analog:
+        if use_analog:
             cmd += " --analog {}"
 
 
