@@ -29,7 +29,7 @@ def task_computeheartbeat():
 def task_searchmasst(usi, analog_search):
     print(usi, file=sys.stderr, flush=True)
 
-    spectrum_json = requests.get("https://metabolomics-usi.ucsd.edu/json/?usi1={}".format(usi)).json()
+    spectrum_json = requests.get("https://metabolomics-usi.gnps2.org/json/?usi1={}".format(usi)).json()
 
     random_string = str(uuid.uuid4()).replace("-", "")
     temp_query_mgf = os.path.join("temp", "{}.mgf".format(random_string))
