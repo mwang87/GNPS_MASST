@@ -32,7 +32,7 @@ cache = Cache(dash_app.server, config={
 NAVBAR = dbc.Navbar(
     children=[
         dbc.NavbarBrand(
-            html.Img(src="https://gnps-cytoscape.ucsd.edu/static/img/GNPS_logo.png", width="120px"),
+            html.Img(src="https://cytoscape.gnps2.org/static/img/GNPS_logo.png", width="120px"),
             href="https://www.cs.ucr.edu/~mingxunw/"
         ),
         dbc.Nav(
@@ -413,7 +413,13 @@ END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
     print(cmd, file=sys.stderr, flush=True)
     os.system(cmd)
 
-    return [html.Iframe(src="/microbemasst/results?task={}".format(mangling), width="100%", height="900px")]
+    response_list = [html.Iframe(src="/microbemasst/results?task={}".format(mangling), width="100%", height="900px")]
+
+    # Creating download link for the results
+    response_list.append(html.Br())
+    response_list.append(html.A("Download Results", href="/microbemasst/results?task={}".format(mangling), download="mangling.html", target="_blank"))
+
+    return [response_list]
 
 @dash_app.callback([
                 Output('spectrummirror', 'children')
@@ -441,9 +447,9 @@ def draw_spectrum(usi1, table_data, table_selected):
 
     url_params = urllib.parse.urlencode(url_params_dict)
 
-    link_url = "https://metabolomics-usi.ucsd.edu/dashinterface"
+    link_url = "https://metabolomics-usi.gnps2.org/dashinterface"
     link = html.A("View Spectrum Mirror Plot in Metabolomics Resolver", href=link_url + "?" + url_params, target="_blank")
-    svg_url = "https://metabolomics-usi.ucsd.edu/svg/mirror/?{}".format(url_params)
+    svg_url = "https://metabolomics-usi.gnps2.org/svg/mirror/?{}".format(url_params)
 
     image_obj = html.Img(src=svg_url)
 
