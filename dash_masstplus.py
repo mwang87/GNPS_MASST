@@ -332,9 +332,9 @@ def draw_spectrum(usi1, table_data, table_selected):
 
     url_params = urllib.parse.urlencode(url_params_dict)
 
-    link_url = "https://metabolomics-usi.ucsd.edu/dashinterface"
+    link_url = "https://metabolomics-usi.gnps2.org/dashinterface"
     link = html.A("View Spectrum Mirror Plot in Metabolomics Resolver", href=link_url + "?" + url_params, target="_blank")
-    svg_url = "https://metabolomics-usi.ucsd.edu/svg/mirror/?{}".format(url_params)
+    svg_url = "https://metabolomics-usi.gnps2.org/svg/mirror/?{}".format(url_params)
 
     image_obj = html.Img(src=svg_url)
 
