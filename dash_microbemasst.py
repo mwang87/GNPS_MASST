@@ -196,8 +196,7 @@ EXAMPLES_DASHBOARD = [
     dbc.CardHeader(html.H5("Examples")),
     dbc.CardBody(
         [
-            html.A("lovastatin", id="example_molecule1", href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3A"
-                                                                    "CCMSLIB00005435737"),
+            html.A("lovastatin", id="example_molecule1", href='/microbemasst#%7B"usi1"%3A%20"mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00005435737"%2C%20"peaks"%3A%20%5B""%5D%2C%20"precursor_mz"%3A%20%5B""%5D%7D'),
             html.Br(),
             html.A("mevastatin", id="example_molecule2", href="/microbemasst#%7B%22usi1%22%3A%20%5B%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3A"
                                                                     "CCMSLIB00005435644"),
