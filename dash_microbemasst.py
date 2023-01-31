@@ -488,6 +488,11 @@ def draw_url(usi1):
     params = {}
     params["usi1"] = usi1
 
+    try:
+        params["usi1"] = usi1[0]
+    except:
+        pass
+
     url_params = urllib.parse.urlencode(params)
 
     return ["https://fasst.gnps2.org/fastsearch/?" + url_params]
