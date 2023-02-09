@@ -64,7 +64,7 @@ DATASELECTION_CARD = [
             dbc.InputGroup(
                 [
                     dbc.InputGroupText("Spectrum Peaks"),
-                    dbc.Textarea(id='peaks', placeholder="Enter one peak per line as follows:\n\nm/z1\tintensity1\nm/zz2\tintensity2\nm/z3\tintensity3\n...", rows=10),
+                    dbc.Textarea(id='peaks', placeholder="Enter one peak per line as follows:\n\nm/z1\tintensity1\nm/z2\tintensity2\nm/z3\tintensity3\n...", rows=10),
                 ],
                 className="mb-3"
             ),
