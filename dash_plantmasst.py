@@ -531,7 +531,7 @@ dash_app.clientside_callback(
 
 # API
 @app.route("/plantmasst/results")
-def results():
+def plantmasst_results():
     html_file = plant_masst_path(request.args.get("task"))
     return send_file(html_file)
 

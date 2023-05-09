@@ -531,7 +531,7 @@ dash_app.clientside_callback(
 
 # API
 @app.route("/microbemasst/results")
-def results():
+def microbemasst_results():
     html_file = microbe_masst_path(request.args.get("task"))
     return send_file(html_file)
 

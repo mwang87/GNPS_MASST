@@ -533,7 +533,7 @@ dash_app.clientside_callback(
 
 # API
 @app.route("/metadatamasst/results")
-def results():
+def metadatamasst_results():
     html_file = metadata_masst_path(request.args.get("task"))
     return send_file(html_file)
 
