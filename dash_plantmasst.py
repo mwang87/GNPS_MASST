@@ -184,7 +184,7 @@ CONTRIBUTORS_DASHBOARD = [
             html.Br(),
             "Robin Schmid PhD - UC San Diego",
             html.Br(),
-            "Simone Zuffa PhD - UC San Diego",
+            "Wender Gomes PhD - UC San Diego",
             html.Br(),
             "Ben Pullman PhD - UC San Diego",
             html.Br(),
@@ -550,7 +550,7 @@ def plant_masst_path(task):
     if os.path.isfile(html_file):
         return html_file
     elif os.path.isfile(os.path.join(output_folder, "fastMASST_matches.tsv")):
-        return os.path.join("html_results", "succes_no_matches_to_metadata.html")
+        return os.path.join("html_results", "success_no_matches_metadata.html")
     else:
         return os.path.join("html_results", "error_result.html")
 
