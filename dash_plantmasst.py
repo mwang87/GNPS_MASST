@@ -37,7 +37,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("plantMASST Dashboard - Version 1.1", href="/plantmasst")),
+                dbc.NavItem(dbc.NavLink("plantMASST Dashboard - Version 1.6", href="/plantmasst")),
             ],
         navbar=True)
     ],
@@ -81,13 +81,13 @@ DATASELECTION_CARD = [
             dbc.InputGroup(
                 [
                     dbc.InputGroupText("PM Tolerance (Da)"),
-                    dbc.Input(id='pm_tolerance', type='number', placeholder="pm tolerance", value=0.05, min = 0.05, max = 0.4, step=0.05),
+                    dbc.Input(id='pm_tolerance', type='number', placeholder="pm tolerance", value=0.05, min = 0.01, max = 0.2, step=0.02),
                     dbc.InputGroupText("Fragment Tolerance (Da)"),
-                    dbc.Input(id='fragment_tolerance', type='number', placeholder="fragment_tolerance", value=0.05,min = 0.05, max = 0.4, step=0.05),
+                    dbc.Input(id='fragment_tolerance', type='number', placeholder="fragment_tolerance", value=0.05,min = 0.01, max = 0.2, step=0.02),
                     dbc.InputGroupText("Cosine Threshold"),
                     dbc.Input(id='cosine_threshold', type='number', placeholder="cosine_threshold", value=0.7, min=0.5, max=1.0, step=0.05),
                     dbc.InputGroupText("Minimum Matched Peaks"),
-                    dbc.Input(id='min_matched_peaks', type='number', placeholder="min_matched_peaks", value=3, min=1, max=1000, step=1),
+                    dbc.Input(id='min_matched_peaks', type='number', placeholder="min_matched_peaks", value=3, min=1, max=100, step=1),
                 ],
                 className="mb-3",
             ),
