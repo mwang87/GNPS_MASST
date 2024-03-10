@@ -23,47 +23,47 @@ services:
         limits:
           memory: 4000M
 
-  masst-plus-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: masst-plus-worker
-    volumes:
-      - ./logs:/app/logs:rw
-      - ./temp:/app/temp:rw
-      - ./bin:/app/bin:ro
-    command: /app/run_worker.sh
-    restart: unless-stopped
-    depends_on: 
-      - masst-redis
-      - masst-rabbitmq
-    networks:
-      - default
-      - nginx-net
-    deploy:
-      resources:
-        limits:
-          memory: 4000M
+  # masst-plus-worker:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #   container_name: masst-plus-worker
+  #   volumes:
+  #     - ./logs:/app/logs:rw
+  #     - ./temp:/app/temp:rw
+  #     - ./bin:/app/bin:ro
+  #   command: /app/run_worker.sh
+  #   restart: unless-stopped
+  #   depends_on: 
+  #     - masst-redis
+  #     - masst-rabbitmq
+  #   networks:
+  #     - default
+  #     - nginx-net
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 4000M
 
-  masst-rabbitmq:
-    container_name: masst-rabbitmq
-    image: rabbitmq
-    networks:
-      - default
-    deploy:
-      resources:
-        limits:
-          memory: 500M
+  # masst-rabbitmq:
+  #   container_name: masst-rabbitmq
+  #   image: rabbitmq
+  #   networks:
+  #     - default
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 500M
 
-  masst-redis:
-    container_name: masst-redis
-    image: redis
-    networks:
-      - default
-    deploy:
-      resources:
-        limits:
-          memory: 500M
+  # masst-redis:
+  #   container_name: masst-redis
+  #   image: redis
+  #   networks:
+  #     - default
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 500M
 
 networks:
   nginx-net:
