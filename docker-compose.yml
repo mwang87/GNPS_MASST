@@ -13,6 +13,7 @@ services:
       - "5052:5000"
     command: /app/run_server.sh
     #command: /app/run_dev_server.sh
+    restart: always
     environment:
       VIRTUAL_HOST: masst.gnps2.org
       VIRTUAL_PORT: 5000
