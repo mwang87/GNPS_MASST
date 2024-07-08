@@ -26,7 +26,7 @@ from collections import defaultdict
 import uuid
 
 from flask_caching import Cache
-import tasks
+#import tasks
 
 from app import app
 
@@ -49,7 +49,7 @@ cache = Cache(dash_app.server, config={
 NAVBAR = dbc.Navbar(
     children=[
         dbc.NavbarBrand(
-            html.Img(src="https://gnps-cytoscape.ucsd.edu/static/img/GNPS_logo.png", width="120px"),
+            html.Img(src="https://gnps2.org/static/img/logo.png", width="120px"),
             href="https://www.cs.ucr.edu/~mingxunw/"
         ),
         dbc.Nav(
@@ -283,7 +283,7 @@ def determine_task(search):
                   Input('analog_search', 'value')
             ])
 def draw_output(usi1, analog_search):
-    result = tasks.task_searchmasst.delay(usi1, analog_search)
+    #result = tasks.task_searchmasst.delay(usi1, analog_search)
     result_list = result.get()
 
     if len(result_list) == 0:

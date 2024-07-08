@@ -33,7 +33,7 @@ cache = Cache(dash_app.server, config={
 NAVBAR = dbc.Navbar(
     children=[
         dbc.NavbarBrand(
-            html.Img(src="https://cytoscape.gnps2.org/static/img/GNPS_logo.png", width="120px"),
+            html.Img(src="https://gnps2.org/static/img/logo.png", width="120px"),
             href="https://www.cs.ucr.edu/~mingxunw/"
         ),
         dbc.Nav(
