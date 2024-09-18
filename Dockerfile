@@ -11,8 +11,11 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 # Adding to bashrc
 RUN echo "export PATH=$CONDA_DIR:$PATH" >> ~/.bashrc
 
+# Forcing version of Python
+RUN mamba create -n python3 python=3.10 -y
+
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN /bin/bash -c 'source activate python3 && pip install -r requirements.txt'
 
 COPY . /app
 WORKDIR /app
