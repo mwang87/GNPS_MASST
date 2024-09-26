@@ -37,7 +37,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("microbeMASST Dashboard - Version 1.6", href="/microbemasst")),
+                dbc.NavItem(dbc.NavLink("microbeMASST Dashboard - Version 2024.08.26", href="/microbemasst")),
             ],
         navbar=True)
     ],
@@ -360,6 +360,7 @@ def draw_output(
         --min_matched_signals {} \
         --analog_mass_below {} \
         --analog_mass_above {} \
+        --database metabolomicspanrepo_index_latest \
         '.format(usi1,
                 out_file,
                 prec_mz_tol,
@@ -400,6 +401,7 @@ END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
         --analog {} \
         --analog_mass_below {} \
         --analog_mass_above {} \
+        --database metabolomicspanrepo_index_latest \
         '.format(os.path.join("../..", mgf_filename),
                 out_file,
                 prec_mz_tol,
