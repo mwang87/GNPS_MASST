@@ -552,9 +552,9 @@ def personalcareMASST(task):
     :return: the html file that matches the state
     """
     task_path = os.path.basename(task)
-    output_folder = os.path.join("temp", "personalcareMASST", task_path)
+    output_folder = os.path.join("temp", "microbemasst", task_path)
     # TODO: Update this to be the right file
-    html_file = os.path.join(output_folder, "fastMASST_microbe.html")
+    html_file = os.path.join(output_folder, "fastMASST_personalCareProduct.html")
     if os.path.isfile(html_file):
         return html_file
     elif os.path.isfile(os.path.join(output_folder, "fastMASST_matches.tsv")):

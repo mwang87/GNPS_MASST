@@ -7,7 +7,7 @@ import io
 
 from app import app
 import requests
-import credentials
+import os
 
 ALLOWED_EXTENSIONS = set(['mgf', 'mzxml', 'mzml'])
 
@@ -48,8 +48,9 @@ def submit():
     if len(request.form["peaks"]) > 50000:
         abort(400, "Peaks are too long, must be less than 20K characters")
 
-    username = credentials.USERNAME
-    password = credentials.PASSWORD
+    # using environment variables
+    username = os.environ.get('gnpsusername', 'defaultusername')
+    password = os.environ.get('gnpspassword', 'defaultusername')
     email = "nobody@ucsd.edu"
     dataset_filter = request.form["database"]
 

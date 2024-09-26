@@ -1,2 +1,0 @@
-user="X"
-password="X"
