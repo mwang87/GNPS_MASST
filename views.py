@@ -27,12 +27,6 @@ def foodmasst():
     response.set_cookie('username', str(uuid.uuid4()))
     return response
 
-@app.route('/personalcaremasst', methods=['GET'])
-def personalcaremasst():
-    response = make_response(render_template('personalcaremasst.html'))
-    response.set_cookie('username', str(uuid.uuid4()))
-    return response
-
 @app.route('/submit', methods=['POST'])
 @app.route('/masst/submit', methods=['POST'])
 def submit():
