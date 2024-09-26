@@ -26,4 +26,3 @@ pronto
 lxml
 minify_html==0.8.0
 pyteomics
-credentials
