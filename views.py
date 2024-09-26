@@ -27,6 +27,12 @@ def foodmasst():
     response.set_cookie('username', str(uuid.uuid4()))
     return response
 
+@app.route('/personalcaremasst', methods=['GET'])
+def personalcaremasst():
+    response = make_response(render_template('personalcaremasst.html'))
+    response.set_cookie('username', str(uuid.uuid4()))
+    return response
+
 @app.route('/submit', methods=['POST'])
 @app.route('/masst/submit', methods=['POST'])
 def submit():
@@ -169,6 +175,34 @@ def foodmasstresult():
 
     # Getting the actual html and displaying it
     download_url = "https://proteomics2.ucsd.edu/ProteoSAFe/DownloadResult?task={}&view=download_food_tree_html".format(task)
+    response = requests.post(download_url)
+    with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
+        for zipinfo in thezip.infolist():
+            with thezip.open(zipinfo) as thefile:
+                if "main.html" in thefile.name:
+                    return thefile.read()
+
+    return "Error: Not Found"
+
+# Display some results
+@app.route('/personalcaremasst/result', methods=['GET'])
+def personalcaremasstresult():
+    task = request.values.get("task")
+
+    # Checking if the task is the proper type
+    url = "https://gnps.ucsd.edu/ProteoSAFe/status_json.jsp?task={}".format(task)
+    r = requests.get(url)
+
+    if r.status_code != 200:
+        return "Error: Task not found"
+    
+    response = r.json()
+
+    if response["workflow"] != "SEARCH_SINGLE_SPECTRUM":
+        return "Error: Task not of type SEARCH_SINGLE_SPECTRUM"
+
+    # Getting the actual html and displaying it
+    download_url = "https://proteomics2.ucsd.edu/ProteoSAFe/DownloadResult?task={}&view=download_personalcare_tree_html".format(task)
     response = requests.post(download_url)
     with zipfile.ZipFile(io.BytesIO(response.content)) as thezip:
         for zipinfo in thezip.infolist():
