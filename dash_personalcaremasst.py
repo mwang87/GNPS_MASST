@@ -184,6 +184,8 @@ CONTRIBUTORS_DASHBOARD = [
             html.Br(),
             "Yasin El Abiead PhD - UC San Diego",
             html.Br(),
+            "Reza Shahneh - UC Riverside",
+            html.Br(),
         ]
     )
 ]
