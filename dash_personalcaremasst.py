@@ -37,7 +37,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("microbeMASST Dashboard - Version 2024.08.26", href="/personalcareMASST")),
+                dbc.NavItem(dbc.NavLink("personalcareMASST Dashboard - Version 2024.08.26", href="/personalcaremasst")),
             ],
         navbar=True)
     ],
@@ -180,28 +180,31 @@ CONTRIBUTORS_DASHBOARD = [
     dbc.CardHeader(html.H5("Contributors")),
     dbc.CardBody(
         [
-            "Coming soon",
+            "Mingxun Wang PhD - UC Riverside",
+            html.Br(),
+            "Yasin El Abiead PhD - UC San Diego",
+            html.Br(),
+            "Reza Shahneh - UC Riverside",
             html.Br(),
         ]
     )
 ]
 
+
+def create_example(lib_id):
+    return f"/personalcaremasst#%7B%22usi1%22%3A%20%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3A{lib_id}%22%2C%20%22peaks%22%3A%20%5B%22%22%5D%2C%20%22precursor_mz%22%3A%20%5B%22%22%5D%7D"
+# mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00006718067 Propyl paraben (edited)
+
+
 EXAMPLES_DASHBOARD = [
     dbc.CardHeader(html.H5("Examples")),
     dbc.CardBody(
         [
-            html.P("Coming Soon"),
+            html.A("Propyl paraben", id="example_molecule1", href=create_example("CCMSLIB00006718067")),
+            html.Br(),
         ]
     )
 ]
-
-
-# EXAMPLES_DASHBOARD = [
-#     dbc.CardHeader(html.H5("Examples")),
-#     dbc.CardBody(
-#         [
-#             html.A("lovastatin", id="example_molecule1", href='/microbemasst#%7B"usi1"%3A%20"mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00005435737"%2C%20"peaks"%3A%20%5B""%5D%2C%20"precursor_mz"%3A%20%5B""%5D%7D'),
-#             html.Br(),
 #             html.A("mevastatin", id="example_molecule2", href="/microbemasst#%7B%22usi1%22%3A%20%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3ACCMSLIB00005435644%22%2C%20%22peaks%22%3A%20%5B%22%22%5D%2C%20%22precursor_mz%22%3A%20%5B%22%22%5D%7D"),
 #             html.Br(),
 #             html.A("arylomycin A4", id="example_molecule3",
@@ -422,11 +425,11 @@ END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
     print(cmd, file=sys.stderr, flush=True)
     os.system(cmd)
 
-    response_list = [html.Iframe(src="/personalcareMASST/results?task={}".format(mangling), width="100%", height="900px")]
+    response_list = [html.Iframe(src="/personalcaremasst/results?task={}".format(mangling), width="100%", height="900px")]
 
     # Creating download link for the results
     response_list.append(html.Br())
-    response_list.append(html.A("Download Results", href="/personalcareMASST/results?task={}".format(mangling), download="mangling.html", target="_blank"))
+    response_list.append(html.A("Download Results", href="/personalcaremasst/results?task={}".format(mangling), download="mangling.html", target="_blank"))
 
     return [response_list]
 
@@ -481,7 +484,7 @@ def draw_url(usi1, peaks, precursor_mz):
 
     url_params = urllib.parse.quote(json.dumps(params))
 
-    return [request.host_url + "/personalcareMASST#" + url_params]
+    return [request.host_url + "/personalcaremasst#" + url_params]
 
 
 @dash_app.callback([
@@ -537,7 +540,7 @@ dash_app.clientside_callback(
 )
 
 # API
-@app.route("/personalcareMASST/results")
+@app.route("/personalcaremasst/results")
 def personalcareMASST_results():
     html_file = personalcareMASST(request.args.get("task"))
 
