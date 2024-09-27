@@ -186,6 +186,8 @@ CONTRIBUTORS_DASHBOARD = [
             html.Br(),
             "Reza Shahneh - UC Riverside",
             html.Br(),
+            "Haoqi Nina Zhao PhD - UC San Diego",
+            html.Br(),
         ]
     )
 ]
