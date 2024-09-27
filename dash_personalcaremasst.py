@@ -287,7 +287,7 @@ def determine_task(search):
     except:
         query_dict = {}
 
-    usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00000085687')
+    usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00006718067')
     peaks = _get_url_param(query_dict, "peaks", '')
     precursor_mz = _get_url_param(query_dict, "precursor_mz", '')
 
@@ -332,7 +332,7 @@ def draw_output(
     button_id = ctx.triggered_id if not None else 'No clicks yet'
 
     import sys
-    print("HERE", search_button_usi, button_id, file=sys.stderr)
+    # print("HERE", search_button_usi, button_id, file=sys.stderr)
 
     # This is on load
     if search_button_usi == 0 and search_button_peaks == 0:
