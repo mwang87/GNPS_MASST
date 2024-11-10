@@ -29,6 +29,28 @@ cache = Cache(dash_app.server, config={
     'CACHE_THRESHOLD': 1000000
 })
 
+dash_app.index_string = """<!DOCTYPE html>
+<html>
+    <head>
+        <!-- Umami Analytics -->
+        <script async defer data-website-id="a2c04f32-dca9-4fcd-b3f3-0f9aeeb2d74e" src="https://analytics.gnps2.org/umami.js"></script>
+        <script async defer data-website-id="74bc9983-13c4-4da0-89ae-b78209c13aaf" src="https://analytics.gnps2.org/umami.js"></script>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>"""
+
+
 NAVBAR = dbc.Navbar(
     children=[
         dbc.NavbarBrand(
