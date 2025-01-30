@@ -204,12 +204,8 @@ CONTRIBUTORS_DASHBOARD = [
         [
             "Mingxun Wang PhD - UC Riverside",
             html.Br(),
-            "Yasin El Abiead PhD - UC San Diego",
-            html.Br(),
-            "Reza Shahneh - UC Riverside",
-            html.Br(),
-            "Haoqi Nina Zhao PhD - UC San Diego",
-            html.Br(),
+            "Simone Zuffa PhD - UC San Diego",
+            html.Br()
         ]
     )
 ]
@@ -225,6 +221,12 @@ EXAMPLES_DASHBOARD = [
     dbc.CardBody(
         [
             html.A("Propyl paraben", id="example_molecule1", href=create_example("CCMSLIB00006718067")),
+            html.Br(),
+            html.A("glutamate-cholic acid (Glu-CA)", id="example_molecule2", href=create_example("CCMSLIB00006582258")),
+            html.Br(),
+            html.A("Ampicillin", id="example_molecule3", href=create_example("CCMSLIB00006679903")),
+            html.Br(),
+            html.A("Cadaverine-C2:0", id="example_molecule3", href=create_example("CCMSLIB00012715404")),
             html.Br(),
         ]
     )
