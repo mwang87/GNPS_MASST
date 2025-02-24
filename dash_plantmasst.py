@@ -398,7 +398,7 @@ def draw_output(
 
         # Tacking on the analog flag
         if use_analog:
-            cmd += " --analog {}"
+            cmd += " --analog true"
 
 
     elif button_id == "search_button_peaks":
@@ -584,4 +584,5 @@ def plant_masst_path(task):
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True, port=5000, host="0.0.0.0")
+    app.run(debug=True, port=5000, host="0.0.0.0")
+    # app.run_server(debug=True, port=5000, host="0.0.0.0")

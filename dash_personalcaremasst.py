@@ -405,7 +405,7 @@ def draw_output(
 
         # Tacking on the analog flag
         if use_analog:
-            cmd += " --analog {}"
+            cmd += " --analog true"
 
 
     elif button_id == "search_button_peaks":
