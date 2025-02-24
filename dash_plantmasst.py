@@ -86,7 +86,7 @@ DATASELECTION_CARD = [
             dbc.InputGroup(
                 [
                     dbc.InputGroupText("Spectrum Peaks"),
-                    dbc.Textarea(id='peaks', placeholder="Enter one peak per line as follows:\n\nm/z1\tintensity1\nm/z2\tintensity2\nm/z3\tintensity3\n...", rows=10),
+                    dbc.Textarea(id='peaks', placeholder="Enter one peak per line as follows:\n\nm/z1\t\tintensity1\nm/z2\tintensity2\nm/z3\tintensity3\n...", rows=10),
                 ],
                 className="mb-3"
             ),
@@ -103,13 +103,17 @@ DATASELECTION_CARD = [
             dbc.InputGroup(
                 [
                     dbc.InputGroupText("PM Tolerance (Da)"),
-                    dbc.Input(id='pm_tolerance', type='number', placeholder="pm tolerance", value=0.05, min = 0.01, max = 0.2, step=0.02),
+                    dbc.Input(id='pm_tolerance', type='number', placeholder="pm tolerance", value=0.05, min = 0.01, max = 0.2, step=0.01),
+                    dbc.Tooltip("Tolerance for precursor mass in Daltons. Min= 0.01 ppm; Max= 0.2 ppm", target="pm_tolerance", placement="bottom"),
                     dbc.InputGroupText("Fragment Tolerance (Da)"),
-                    dbc.Input(id='fragment_tolerance', type='number', placeholder="fragment_tolerance", value=0.05,min = 0.01, max = 0.2, step=0.02),
+                    dbc.Input(id='fragment_tolerance', type='number', placeholder="fragment_tolerance", value=0.05,min = 0.01, max = 0.2, step=0.01),
+                    dbc.Tooltip("Tolerance for fragment mass in Daltons. Min= 0.01 ppm; Max= 0.2 ppm", target="fragment_tolerance", placement="bottom"),
                     dbc.InputGroupText("Cosine Threshold"),
-                    dbc.Input(id='cosine_threshold', type='number', placeholder="cosine_threshold", value=0.7, min=0.5, max=1.0, step=0.05),
+                    dbc.Input(id='cosine_threshold', type='number', placeholder="cosine_threshold", value=0.7, min=0.5, max=1.0, step=0.01),
+                    dbc.Tooltip("Cosine Threshold for matching. Min= 0.5; Max= 1.0", target="cosine_threshold", placement="bottom"),
                     dbc.InputGroupText("Minimum Matched Peaks"),
                     dbc.Input(id='min_matched_peaks', type='number', placeholder="min_matched_peaks", value=3, min=1, max=100, step=1),
+                    dbc.Tooltip("Minimum number of matched peaks for a match. Min= 1; Max= 100", target="min_matched_peaks", placement="bottom"),
                 ],
                 className="mb-3",
             ),
@@ -126,8 +130,10 @@ DATASELECTION_CARD = [
                     ),
                     dbc.InputGroupText("Delta Mass Below (Da)"),
                     dbc.Input(id='delta_mass_below', type='number', placeholder="delta_mass_below", value=130, min = 0, max = 300, step=1),
+                    dbc.Tooltip("Min= 0; Max= 300", target="delta_mass_below", placement="bottom"),
                     dbc.InputGroupText("Delta Mass Above (Da)"),
                     dbc.Input(id='delta_mass_above', type='number', placeholder="delta_mass_above", value=200, min = 0, max = 300, step=1),
+                    dbc.Tooltip("Min= 0; Max= 300", target="delta_mass_above", placement="bottom"),
                 ],
                 className="mb-3",
             ),
