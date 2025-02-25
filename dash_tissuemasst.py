@@ -59,7 +59,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("tissueMASST Dashboard - Version 2024.08.26", href="/tissuemasst")),
+                dbc.NavItem(dbc.NavLink("tissueMASST Dashboard - Version 2025.02.24", href="/tissuemasst")),
             ],
         navbar=True)
     ],
