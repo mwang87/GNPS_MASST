@@ -59,7 +59,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("tissueMASST Dashboard - Version 2024.08.26", href="/tissuemasst")),
+                dbc.NavItem(dbc.NavLink("tissueMASST Dashboard - Version 2025.02.24", href="/tissuemasst")),
             ],
         navbar=True)
     ],
@@ -407,7 +407,7 @@ def draw_output(
 
         # Tacking on the analog flag
         if use_analog:
-            cmd += " --analog {}"
+            cmd += " --analog true"
 
 
     elif button_id == "search_button_peaks":
