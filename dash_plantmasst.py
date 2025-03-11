@@ -447,11 +447,11 @@ END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
     print(cmd, file=sys.stderr, flush=True)
     os.system(cmd)
 
-    response_list = [html.Iframe(src="/plantmasst/results?task={}".format(mangling), width="100%", height="900px")]
+    response_list = [html.Iframe(src="/plantmasst/results?task={}&analog={}".format(mangling, use_analog), width="100%", height="900px")]
 
     # Creating download link for the results
     response_list.append(html.Br())
-    response_list.append(html.A("Download Results", href="/plantmasst/results?task={}".format(mangling), download="mangling.html", target="_blank"))
+    response_list.append(html.A("Download Results", href="/plantmasst/results?task={}&analog={}".format(mangling, use_analog), download="mangling.html", target="_blank"))
 
     return [response_list]
 
@@ -564,21 +564,24 @@ dash_app.clientside_callback(
 # API
 @app.route("/plantmasst/results")
 def plantmasst_results():
-    html_file = plant_masst_path(request.args.get("task"))
+    use_analog = request.args.get("analog") == "True"
+    html_file = plant_masst_path(request.args.get("task"), use_analog)
     return send_file(html_file)
 
-def plant_masst_path(task):
+def plant_masst_path(task, use_analog):
     """
     actual file found - success and matches to plantMASST,
     matches file found - success but no matches,
     no success - just placeholder to show error,
     :param task: taskid
+    :param use_analog: whether to export the _analog html file or not
     :return: the html file that matches the state
     """
     # keep temp/microbemasst/ as folder. All files are generated there
     task_path = os.path.basename(task)
     output_folder = os.path.join("temp", "microbemasst", task_path)
-    html_file = os.path.join(output_folder, "fastMASST_plant.html")
+    html_file = os.path.join(output_folder, "fastMASST_analog_plant.html") \
+        if use_analog == True else os.path.join(output_folder, "fastMASST_plant.html")
     if os.path.isfile(html_file):
         return html_file
     elif os.path.isfile(os.path.join(output_folder, "fastMASST_matches.tsv")):
