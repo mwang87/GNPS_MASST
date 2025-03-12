@@ -583,8 +583,8 @@ def tissueMASST(task, use_analog):
     task_path = os.path.basename(task)
     output_folder = os.path.join("temp", "microbemasst", task_path)
     # TODO: Update this to be the right file
-    html_file = os.path.join(output_folder, "fastMASST_analog_tissue.htm") \
-        if use_analog == True else os.path.join(output_folder, "fastMASST_tissue.htm")
+    html_file = os.path.join(output_folder, "fastMASST_analog_tissue.html") \
+        if use_analog == True else os.path.join(output_folder, "fastMASST_tissue.html")
     if os.path.isfile(html_file):
         return html_file
     elif os.path.isfile(os.path.join(output_folder, "fastMASST_matches.tsv")):
