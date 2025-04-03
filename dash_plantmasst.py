@@ -60,7 +60,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("plantMASST Dashboard - Version 2025.03.25", href="/plantmasst")),
+                dbc.NavItem(dbc.NavLink("plantMASST Dashboard - Version 2025.04.03", href="/plantmasst")),
             ],
         navbar=True)
     ],
