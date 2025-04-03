@@ -9,6 +9,7 @@ import urllib
 import urllib.parse
 import json
 from flask import Flask, send_file, request
+import requests
 
 from flask_caching import Cache
 from app import app
@@ -225,42 +226,82 @@ CONTRIBUTORS_DASHBOARD = [
 ]
 
 
-def create_example(lib_id):
-    return f"/plantmasst#%7B%22usi1%22%3A%20%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3A{lib_id}%22%2C%20%22peaks%22%3A%20%5B%22%22%5D%2C%20%22precursor_mz%22%3A%20%5B%22%22%5D%7D"
+def create_example(lib_id, use_peaks=False):
+    if not use_peaks:
+        hash_dict = {"usi1": f"mzspec:GNPS:GNPS-LIBRARY:accession:{lib_id}", "peaks": [""], "precursor_mz": [""]}
+        return f"/plantmasst#{urllib.parse.quote(json.dumps(hash_dict))}"
+    else:
+        url = f"https://metabolomics-usi.gnps2.org/json/?usi1=mzspec:GNPS:GNPS-LIBRARY:accession:{lib_id}"
+        response = requests.get(url)
+        data = response.json()
 
+        spectrum_details = data.get("peaks", [])
+        peaks_list = "\n".join(f"{mz}, {intensity}" for mz, intensity in spectrum_details)
+
+        charge = data.get('precursor_charge')
+        precursor_mz = data.get('precursor_mz')
+
+        hash_dict = {
+            "usi1": "",
+            "peaks": peaks_list,
+            "precursor_mz": precursor_mz,
+            "charge": charge}
+
+        return f"/plantmasst/#{urllib.parse.quote(json.dumps(hash_dict))}"
+
+# Name, ID, Library ID, and use_peaks param
+examples_data = [
+    ("Moroidin", "example_peaks1", "CCMSLIB00005435899"),
+    ("Rutin", "example_molecule1", "CCMSLIB00003139483"),
+    ("Isoschaftoside", "example_molecule2", "CCMSLIB00005778294"),
+    ("Orientin", "example_molecule3", "CCMSLIB00004696818"),
+    ("Dicaffeoylquinic acid", "example_molecule4", "CCMSLIB00005724378"),
+    ("Digalloylquinic acid", "example_molecule5", "CCMSLIB00004692123"),
+    ("Tetrahydropapaveroline", "example_molecule6", "CCMSLIB00000222377"),
+    ("Aurantiamide acetate", "example_molecule7", "CCMSLIB00005727351"),
+    ("Makisterone A", "example_molecule8", "CCMSLIB00004717894"),
+    ("6-Hydroxyloganin", "example_molecule9", "CCMSLIB00000853770"),
+    ("Karakin", "example_molecule10", "CCMSLIB00010007469"),
+    ("Procyanidin B2", "example_molecule11", "CCMSLIB00000081689"),
+    ("Bufotenine", "example_molecule12", "CCMSLIB00004678666"),
+    ("Secoisolariciresinol", "example_molecule13", "CCMSLIB00005741229"),
+    ("Epiyangambin", "example_molecule14", "CCMSLIB00004719556"),
+]
+
+peaks_examples = []
+for text, element_id, lib_id in examples_data:
+        peaks_examples.append(html.A(text, id=element_id, href=create_example(lib_id, use_peaks=True))),
+        peaks_examples.append(html.Br())
+
+usi_examples = []
+for text, element_id, lib_id in examples_data:
+        usi_examples.append(html.A(text, id=element_id, href=create_example(lib_id, use_peaks=False))),
+        usi_examples.append(html.Br())
 
 EXAMPLES_DASHBOARD = [
     dbc.CardHeader(html.H5("Examples")),
     dbc.CardBody(
         [
-            html.A("Rutin", id="example_molecule1", href=create_example("CCMSLIB00003139483")),
-            html.Br(),
-            html.A("Isoschaftoside", id="example_molecule2", href=create_example("CCMSLIB00005778294")),
-            html.Br(),
-            html.A("Orientin", id="example_molecule3", href=create_example("CCMSLIB00004696818")),
-            html.Br(),
-            html.A("Dicaffeoylquinicacid", id="example_molecule4", href=create_example("CCMSLIB00005724378")),
-            html.Br(),
-            html.A("Digalloylquinicacid", id="example_molecule5", href=create_example("CCMSLIB00004692123")),
-            html.Br(),
-            html.A("Tetrahydropapaveroline", id="example_molecule6", href=create_example("CCMSLIB00000222377")),
-            html.Br(),
-            html.A("Aurantiamideacetate", id="example_molecule7", href=create_example("CCMSLIB00005727351")),
-            html.Br(),
-            html.A("MakisteroneA", id="example_molecule8", href=create_example("CCMSLIB00004717894")),
-            html.Br(),
-            html.A("6-Hydroxyloganin", id="example_molecule9", href=create_example("CCMSLIB00000853770")),
-            html.Br(),
-            html.A("Karakin", id="example_molecule10", href=create_example("CCMSLIB00010007469")),
-            html.Br(),
-            html.A("ProcyanidinB2", id="example_molecule11", href=create_example("CCMSLIB00000081689")),
-            html.Br(),
-            html.A("Bufotenine", id="example_molecule12", href=create_example("CCMSLIB00004678666")),
-            html.Br(),
-            html.A("secoisolariciresinol", id="example_molecule13", href=create_example("CCMSLIB00005741229")),
-            html.Br(),
-            html.A("epiyangambin", id="example_molecule14", href=create_example("CCMSLIB00004719556")),
-            html.Br(),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.H6("Using USI"),
+                            html.Br(),
+                            *usi_examples,
+                        ],
+                        width=6,
+                    ),
+                    dbc.Col(
+                        [
+                            html.H6("Using peaks"),
+                            html.Br(),
+                            *peaks_examples
+                        ],
+                        width=6,
+                    ),
+                ]
+            )
         ]
     )
 ]
