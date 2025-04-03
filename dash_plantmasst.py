@@ -444,7 +444,6 @@ def draw_output(
         '.format(usi1,
                 out_file,
                 prec_mz_tol,
-                charge,
                 ms2_mz_tol,
                 min_cos,
                 min_matched_peaks,
