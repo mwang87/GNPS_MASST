@@ -87,7 +87,11 @@ DATASELECTION_CARD = [
             dbc.InputGroup(
                 [
                     dbc.InputGroupText("Spectrum Peaks"),
-                    dbc.Textarea(id='peaks', placeholder="Enter one peak per line as follows:\n\nm/z1\t\tintensity1\nm/z2\tintensity2\nm/z3\tintensity3\n...", rows=10),
+                    dbc.Textarea(id='peaks',
+                                 placeholder="Enter one peak per line as follows.\n"
+                                             "Tab, comma or space separated are accepted, see examples on the right panel\n"
+                                             "Then click on 'Search plantMASST by Spectrum Peaks'\n\n"
+                                             "m/z1\t\tintensity1\nm/z2\tintensity2\nm/z3\tintensity3\n...", rows=10),
                 ],
                 className="mb-3"
             ),
