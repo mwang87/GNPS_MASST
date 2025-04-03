@@ -300,6 +300,7 @@ def _get_url_param(param_dict, key, default):
                 Output('usi1', 'value'),
                 Output('peaks', 'value'),
                 Output('precursor_mz', 'value'),
+                Output('charge', 'value'),
               ],
               [
                   Input('url', 'hash')
@@ -313,11 +314,10 @@ def determine_task(search):
 
     usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00000085687')
     peaks = _get_url_param(query_dict, "peaks", '')
+    charge = _get_url_param(query_dict, "charge", '')
     precursor_mz = _get_url_param(query_dict, "precursor_mz", '')
 
-    return [usi1, peaks, precursor_mz]
-
-
+    return [usi1, peaks, precursor_mz, charge]
 
 
 @dash_app.callback([
@@ -331,6 +331,7 @@ def determine_task(search):
                 State('usi1', 'value'),
                 State('peaks', 'value'),
                 State('precursor_mz', 'value'),
+                State('charge', 'value'),
                 State('pm_tolerance', 'value'),
                 State('fragment_tolerance', 'value'),
                 State('cosine_threshold', 'value'),
@@ -345,6 +346,7 @@ def draw_output(
                 usi1,
                 peaks,
                 precursor_mz,
+                charge,
                 prec_mz_tol,
                 ms2_mz_tol,
                 min_cos,
@@ -395,6 +397,7 @@ def draw_output(
         '.format(usi1,
                 out_file,
                 prec_mz_tol,
+                charge,
                 ms2_mz_tol,
                 min_cos,
                 min_matched_peaks,
@@ -413,9 +416,9 @@ def draw_output(
         mgf_string = """BEGIN IONS
 PEPMASS={}
 MSLEVEL=2
-CHARGE=1
+CHARGE={}
 {}
-END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
+END IONS\n""".format(precursor_mz, charge, peaks.replace(",", " ").replace("\t", " "))
 
         mgf_filename = os.path.join(output_temp, "input_spectra.mgf")
         with open(mgf_filename, "w") as o:
