@@ -99,8 +99,10 @@ DATASELECTION_CARD = [
                 [
                     dbc.InputGroupText("Precursor m/z"),
                     dbc.Input(id='precursor_mz', type='', placeholder="precursor m/z", min = 1, max=10000),
+                    dbc.Tooltip("Use with Spectrum Peaks Search (required)", target="precursor_mz", placement="bottom"),
                     dbc.InputGroupText("Charge"),
                     dbc.Input(id='charge', type='number', placeholder="charge", min = 1, max=40),
+                    dbc.Tooltip("Use with Spectrum Peaks Search (optional, default=1)", target="charge", placement="bottom")
                 ],
                 className="mb-3 no-margin-bottom"
             ),
