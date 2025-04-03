@@ -459,6 +459,8 @@ def draw_output(
     elif button_id == "search_button_peaks":
         # Writing out the MGF file if we are using peaks
         print("USING PEAKS")
+        # default charge to 1 if not passed
+        charge = '1' if charge is None else charge
         mgf_string = """BEGIN IONS
 PEPMASS={}
 MSLEVEL=2
