@@ -221,6 +221,8 @@ CONTRIBUTORS_DASHBOARD = [
             html.Br(),
             "Helena M. Russo PhD - UC San Diego",
             html.Br(),
+            "Wilhan Nunes PhD - UC San Diego",
+            html.Br(),
             "Simone Zuffa PhD - UC San Diego",
             html.Br(),
             "Ben Pullman PhD - UC San Diego",
