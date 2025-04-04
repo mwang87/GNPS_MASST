@@ -229,6 +229,10 @@ CONTRIBUTORS_DASHBOARD = [
             html.Br(),
             "Ben Pullman PhD - UC San Diego",
             html.Br(),
+            html.Hr(),
+            html.H6("Preprint Citaton"),
+            html.A("plantMASST - Community-driven chemotaxonomic digitization of plants",
+                   href='https://doi.org/10.1101/2024.05.13.593988', target='_blank'),
         ]
     )
 ]
