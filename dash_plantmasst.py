@@ -263,31 +263,31 @@ def create_example(lib_id, use_peaks=False):
 
 # Name, ID, Library ID, and use_peaks param
 examples_data = [
-    ("Moroidin", "example_peaks1", "CCMSLIB00005435899"),
-    ("Rutin", "example_molecule1", "CCMSLIB00003139483"),
-    ("Isoschaftoside", "example_molecule2", "CCMSLIB00005778294"),
-    ("Orientin", "example_molecule3", "CCMSLIB00004696818"),
-    ("Dicaffeoylquinic acid", "example_molecule4", "CCMSLIB00005724378"),
-    ("Digalloylquinic acid", "example_molecule5", "CCMSLIB00004692123"),
-    ("Tetrahydropapaveroline", "example_molecule6", "CCMSLIB00000222377"),
-    ("Aurantiamide acetate", "example_molecule7", "CCMSLIB00005727351"),
-    ("Makisterone A", "example_molecule8", "CCMSLIB00004717894"),
-    ("6-Hydroxyloganin", "example_molecule9", "CCMSLIB00000853770"),
-    ("Karakin", "example_molecule10", "CCMSLIB00010007469"),
-    ("Procyanidin B2", "example_molecule11", "CCMSLIB00000081689"),
-    ("Bufotenine", "example_molecule12", "CCMSLIB00004678666"),
-    ("Secoisolariciresinol", "example_molecule13", "CCMSLIB00005741229"),
-    ("Epiyangambin", "example_molecule14", "CCMSLIB00004719556"),
+    ("Moroidin", "CCMSLIB00005435899"),
+    ("Rutin", "CCMSLIB00003139483"),
+    ("Isoschaftoside", "CCMSLIB00005778294"),
+    ("Orientin", "CCMSLIB00004696818"),
+    ("Dicaffeoylquinic acid", "CCMSLIB00005724378"),
+    ("Digalloylquinic acid", "CCMSLIB00004692123"),
+    ("Tetrahydropapaveroline", "CCMSLIB00000222377"),
+    ("Aurantiamide acetate", "CCMSLIB00005727351"),
+    ("Makisterone A", "CCMSLIB00004717894"),
+    ("6-Hydroxyloganin", "CCMSLIB00000853770"),
+    ("Karakin", "CCMSLIB00010007469"),
+    ("Procyanidin B2", "CCMSLIB00000081689"),
+    ("Bufotenine", "CCMSLIB00004678666"),
+    ("Secoisolariciresinol", "CCMSLIB00005741229"),
+    ("Epiyangambin", "CCMSLIB00004719556"),
 ]
 
 peaks_examples = []
-for text, element_id, lib_id in examples_data:
-        peaks_examples.append(html.A(text, id=element_id, href=create_example(lib_id, use_peaks=True))),
+for text, lib_id in examples_data:
+        peaks_examples.append(html.A(text, href=create_example(lib_id, use_peaks=True))),
         peaks_examples.append(html.Br())
 
 usi_examples = []
-for text, element_id, lib_id in examples_data:
-        usi_examples.append(html.A(text, id=element_id, href=create_example(lib_id, use_peaks=False))),
+for text, lib_id in examples_data:
+        usi_examples.append(html.A(text, href=create_example(lib_id, use_peaks=False))),
         usi_examples.append(html.Br())
 
 EXAMPLES_DASHBOARD = [
