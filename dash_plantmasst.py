@@ -275,7 +275,6 @@ examples_data = [
     ("6-Hydroxyloganin", "CCMSLIB00000853770"),
     ("Karakin", "CCMSLIB00010007469"),
     ("Procyanidin B2", "CCMSLIB00000081689"),
-    ("Bufotenine", "CCMSLIB00004678666"),
     ("Secoisolariciresinol", "CCMSLIB00005741229"),
     ("Epiyangambin", "CCMSLIB00004719556"),
 ]
