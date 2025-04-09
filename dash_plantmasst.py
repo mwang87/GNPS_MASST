@@ -9,6 +9,7 @@ import urllib
 import urllib.parse
 import json
 from flask import Flask, send_file, request
+import requests
 
 from flask_caching import Cache
 from app import app
@@ -59,7 +60,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("plantMASST Dashboard - Version 2025.03.25", href="/plantmasst")),
+                dbc.NavItem(dbc.NavLink("plantMASST Dashboard - Version 2025.04.03", href="/plantmasst")),
             ],
         navbar=True)
     ],
@@ -86,7 +87,11 @@ DATASELECTION_CARD = [
             dbc.InputGroup(
                 [
                     dbc.InputGroupText("Spectrum Peaks"),
-                    dbc.Textarea(id='peaks', placeholder="Enter one peak per line as follows:\n\nm/z1\t\tintensity1\nm/z2\tintensity2\nm/z3\tintensity3\n...", rows=10),
+                    dbc.Textarea(id='peaks',
+                                 placeholder="Enter one peak per line as follows.\n"
+                                             "Tab, comma or space separated are accepted, see examples on the right panel\n"
+                                             "Then click on 'Search plantMASST by Spectrum Peaks'\n\n"
+                                             "m/z1\t\tintensity1\nm/z2\tintensity2\nm/z3\tintensity3\n...", rows=10),
                 ],
                 className="mb-3"
             ),
@@ -94,8 +99,10 @@ DATASELECTION_CARD = [
                 [
                     dbc.InputGroupText("Precursor m/z"),
                     dbc.Input(id='precursor_mz', type='', placeholder="precursor m/z", min = 1, max=10000),
+                    dbc.Tooltip("Use with Spectrum Peaks Search (required)", target="precursor_mz", placement="bottom"),
                     dbc.InputGroupText("Charge"),
                     dbc.Input(id='charge', type='number', placeholder="charge", min = 1, max=40),
+                    dbc.Tooltip("Use with Spectrum Peaks Search (optional, default=1)", target="charge", placement="bottom")
                 ],
                 className="mb-3 no-margin-bottom"
             ),
@@ -216,51 +223,96 @@ CONTRIBUTORS_DASHBOARD = [
             html.Br(),
             "Helena M. Russo PhD - UC San Diego",
             html.Br(),
+            "Wilhan Nunes PhD - UC San Diego",
+            html.Br(),
             "Simone Zuffa PhD - UC San Diego",
             html.Br(),
             "Ben Pullman PhD - UC San Diego",
             html.Br(),
+            html.Hr(),
+            html.H6("Preprint Citaton"),
+            html.A("plantMASST - Community-driven chemotaxonomic digitization of plants",
+                   href='https://doi.org/10.1101/2024.05.13.593988', target='_blank'),
         ]
     )
 ]
 
 
-def create_example(lib_id):
-    return f"/plantmasst#%7B%22usi1%22%3A%20%22mzspec%3AGNPS%3AGNPS-LIBRARY%3Aaccession%3A{lib_id}%22%2C%20%22peaks%22%3A%20%5B%22%22%5D%2C%20%22precursor_mz%22%3A%20%5B%22%22%5D%7D"
+def create_example(lib_id, use_peaks=False):
+    if not use_peaks:
+        hash_dict = {"usi1": f"mzspec:GNPS:GNPS-LIBRARY:accession:{lib_id}", "peaks": [""], "precursor_mz": [""]}
+        return f"/plantmasst#{urllib.parse.quote(json.dumps(hash_dict))}"
+    else:
+        url = f"https://metabolomics-usi.gnps2.org/json/?usi1=mzspec:GNPS:GNPS-LIBRARY:accession:{lib_id}"
+        response = requests.get(url)
+        data = response.json()
 
+        spectrum_details = data.get("peaks", [])
+        peaks_list = "\n".join(f"{mz}, {intensity}" for mz, intensity in spectrum_details)
+
+        charge = data.get('precursor_charge')
+        precursor_mz = data.get('precursor_mz')
+
+        hash_dict = {
+            "usi1": "",
+            "peaks": peaks_list,
+            "precursor_mz": precursor_mz,
+            "charge": charge}
+
+        return f"/plantmasst/#{urllib.parse.quote(json.dumps(hash_dict))}"
+
+# Name, ID, Library ID, and use_peaks param
+examples_data = [
+    ("Moroidin", "CCMSLIB00005435899"),
+    ("Rutin", "CCMSLIB00003139483"),
+    ("Isoschaftoside", "CCMSLIB00005778294"),
+    ("Orientin", "CCMSLIB00004696818"),
+    ("Dicaffeoylquinic acid", "CCMSLIB00005724378"),
+    ("Digalloylquinic acid", "CCMSLIB00004692123"),
+    ("Tetrahydropapaveroline", "CCMSLIB00000222377"),
+    ("Aurantiamide acetate", "CCMSLIB00005727351"),
+    ("Makisterone A", "CCMSLIB00004717894"),
+    ("6-Hydroxyloganin", "CCMSLIB00000853770"),
+    ("Karakin", "CCMSLIB00010007469"),
+    ("Procyanidin B2", "CCMSLIB00000081689"),
+    ("Secoisolariciresinol", "CCMSLIB00005741229"),
+    ("Epiyangambin", "CCMSLIB00004719556"),
+]
+
+peaks_examples = []
+for text, lib_id in examples_data:
+        peaks_examples.append(html.A(text, href=create_example(lib_id, use_peaks=True))),
+        peaks_examples.append(html.Br())
+
+usi_examples = []
+for text, lib_id in examples_data:
+        usi_examples.append(html.A(text, href=create_example(lib_id, use_peaks=False))),
+        usi_examples.append(html.Br())
 
 EXAMPLES_DASHBOARD = [
     dbc.CardHeader(html.H5("Examples")),
     dbc.CardBody(
         [
-            html.A("Rutin", id="example_molecule1", href=create_example("CCMSLIB00003139483")),
-            html.Br(),
-            html.A("Isoschaftoside", id="example_molecule2", href=create_example("CCMSLIB00005778294")),
-            html.Br(),
-            html.A("Orientin", id="example_molecule3", href=create_example("CCMSLIB00004696818")),
-            html.Br(),
-            html.A("Dicaffeoylquinicacid", id="example_molecule4", href=create_example("CCMSLIB00005724378")),
-            html.Br(),
-            html.A("Digalloylquinicacid", id="example_molecule5", href=create_example("CCMSLIB00004692123")),
-            html.Br(),
-            html.A("Tetrahydropapaveroline", id="example_molecule6", href=create_example("CCMSLIB00000222377")),
-            html.Br(),
-            html.A("Aurantiamideacetate", id="example_molecule7", href=create_example("CCMSLIB00005727351")),
-            html.Br(),
-            html.A("MakisteroneA", id="example_molecule8", href=create_example("CCMSLIB00004717894")),
-            html.Br(),
-            html.A("6-Hydroxyloganin", id="example_molecule9", href=create_example("CCMSLIB00000853770")),
-            html.Br(),
-            html.A("Karakin", id="example_molecule10", href=create_example("CCMSLIB00010007469")),
-            html.Br(),
-            html.A("ProcyanidinB2", id="example_molecule11", href=create_example("CCMSLIB00000081689")),
-            html.Br(),
-            html.A("Bufotenine", id="example_molecule12", href=create_example("CCMSLIB00004678666")),
-            html.Br(),
-            html.A("secoisolariciresinol", id="example_molecule13", href=create_example("CCMSLIB00005741229")),
-            html.Br(),
-            html.A("epiyangambin", id="example_molecule14", href=create_example("CCMSLIB00004719556")),
-            html.Br(),
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.H6("Using USI"),
+                            html.Br(),
+                            *usi_examples,
+                        ],
+                        width=6,
+                    ),
+                    dbc.Col(
+                        [
+                            html.H6("Using peaks"),
+                            html.Br(),
+                            *peaks_examples
+                        ],
+                        width=6,
+                    ),
+                ]
+            )
         ]
     )
 ]
@@ -300,6 +352,7 @@ def _get_url_param(param_dict, key, default):
                 Output('usi1', 'value'),
                 Output('peaks', 'value'),
                 Output('precursor_mz', 'value'),
+                Output('charge', 'value'),
               ],
               [
                   Input('url', 'hash')
@@ -313,11 +366,10 @@ def determine_task(search):
 
     usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00000085687')
     peaks = _get_url_param(query_dict, "peaks", '')
+    charge = _get_url_param(query_dict, "charge", '')
     precursor_mz = _get_url_param(query_dict, "precursor_mz", '')
 
-    return [usi1, peaks, precursor_mz]
-
-
+    return [usi1, peaks, precursor_mz, charge]
 
 
 @dash_app.callback([
@@ -331,6 +383,7 @@ def determine_task(search):
                 State('usi1', 'value'),
                 State('peaks', 'value'),
                 State('precursor_mz', 'value'),
+                State('charge', 'value'),
                 State('pm_tolerance', 'value'),
                 State('fragment_tolerance', 'value'),
                 State('cosine_threshold', 'value'),
@@ -345,6 +398,7 @@ def draw_output(
                 usi1,
                 peaks,
                 precursor_mz,
+                charge,
                 prec_mz_tol,
                 ms2_mz_tol,
                 min_cos,
@@ -410,12 +464,14 @@ def draw_output(
     elif button_id == "search_button_peaks":
         # Writing out the MGF file if we are using peaks
         print("USING PEAKS")
+        # default charge to 1 if not passed
+        charge = '1' if charge is None else charge
         mgf_string = """BEGIN IONS
 PEPMASS={}
 MSLEVEL=2
-CHARGE=1
+CHARGE={}
 {}
-END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
+END IONS\n""".format(precursor_mz, charge, peaks.replace(",", " ").replace("\t", " "))
 
         mgf_filename = os.path.join(output_temp, "input_spectra.mgf")
         with open(mgf_filename, "w") as o:
