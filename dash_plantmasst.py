@@ -359,6 +359,7 @@ def _get_url_param(param_dict, key, default):
                 Output('peaks', 'value'),
                 Output('precursor_mz', 'value'),
                 Output('charge', 'value'),
+                Output('max_peaks', 'value'),
                 Output('pm_tolerance', 'value'),
                 Output('fragment_tolerance', 'value'),
                 Output('cosine_threshold', 'value'),
@@ -380,6 +381,7 @@ def determine_task(search):
     usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00000085687')
     peaks = _get_url_param(query_dict, "peaks", '')
     charge = _get_url_param(query_dict, "charge", '')
+    max_peaks = _get_url_param(query_dict, "max_peaks", None)
     precursor_mz = _get_url_param(query_dict, "precursor_mz", '')
     charge = _get_url_param(query_dict, "charge", '')
     pm_tolerance = _get_url_param(query_dict, "pm_tolerance", 0.05)
@@ -390,7 +392,7 @@ def determine_task(search):
     delta_mass_below = _get_url_param(query_dict, "delta_mass_below", 130)
     delta_mass_above = _get_url_param(query_dict, "delta_mass_above", 200)
 
-    return [usi1, peaks, precursor_mz, charge, pm_tolerance, fragment_tolerance, cosine_threshold, min_matched_peaks, analog_select, delta_mass_below, delta_mass_above]
+    return [usi1, peaks, precursor_mz, charge, max_peaks, pm_tolerance, fragment_tolerance, cosine_threshold, min_matched_peaks, analog_select, delta_mass_below, delta_mass_above]
 
 
 def sort_and_filter_by_intensity(peaks_string, max_peaks=None):
@@ -651,6 +653,7 @@ def draw_spectrum(usi1, table_data, table_selected):
                     Input('peaks', 'value'),
                     Input('precursor_mz', 'value'),
                     Input('charge', 'value'),
+                    Input('max_peaks', 'value'),
                     Input('pm_tolerance', 'value'),
                     Input('fragment_tolerance', 'value'),
                     Input('cosine_threshold', 'value'),
@@ -659,12 +662,13 @@ def draw_spectrum(usi1, table_data, table_selected):
                     Input('delta_mass_below', 'value'),
                     Input('delta_mass_above', 'value'),
                 ])
-def draw_url(usi1, peaks, precursor_mz, charge, pm_tolerance, fragment_tolerance, cosine_threshold, min_matched_peaks, analog_select, delta_mass_below, delta_mass_above):
+def draw_url(usi1, peaks, precursor_mz, charge, max_peaks, pm_tolerance, fragment_tolerance, cosine_threshold, min_matched_peaks, analog_select, delta_mass_below, delta_mass_above):
     params = {}
     params["usi1"] = usi1
     params["peaks"] = peaks
     params["precursor_mz"] = precursor_mz
     params["charge"] = charge
+    params["max_peaks"] = max_peaks
     params["pm_tolerance"] = pm_tolerance
     params["fragment_tolerance"] = fragment_tolerance
     params["cosine_threshold"] = cosine_threshold
