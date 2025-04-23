@@ -102,7 +102,13 @@ DATASELECTION_CARD = [
                     dbc.Tooltip("Use with Spectrum Peaks Search (required)", target="precursor_mz", placement="bottom"),
                     dbc.InputGroupText("Charge"),
                     dbc.Input(id='charge', type='number', placeholder="charge", min = 1, max=40),
-                    dbc.Tooltip("Use with Spectrum Peaks Search (optional, default=1)", target="charge", placement="bottom")
+                    dbc.Tooltip("Use with Spectrum Peaks Search (optional, default=1)", target="charge", placement="bottom"),
+                    dbc.InputGroupText("Use only the top N most intense peaks (optional)"),
+                    dbc.Input(id='max_peaks', type='number', placeholder="max_peaks", min=3, max=1000, step=1),
+                    dbc.Tooltip("Use with Spectrum Peaks or USI Search (optional). Leave blank for a standard search.\
+                                 When provided, keeps only the most intense peak for each rounded m/z value, " \
+                                 "then selects the top N by intensity. (min = 3; max = 1000)",
+                                target="max_peaks", placement="bottom"),
                 ],
                 className="mb-3 no-margin-bottom"
             ),
@@ -353,6 +359,7 @@ def _get_url_param(param_dict, key, default):
                 Output('peaks', 'value'),
                 Output('precursor_mz', 'value'),
                 Output('charge', 'value'),
+                Output('max_peaks', 'value'),
                 Output('pm_tolerance', 'value'),
                 Output('fragment_tolerance', 'value'),
                 Output('cosine_threshold', 'value'),
@@ -374,6 +381,7 @@ def determine_task(search):
     usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00000085687')
     peaks = _get_url_param(query_dict, "peaks", '')
     charge = _get_url_param(query_dict, "charge", '')
+    max_peaks = _get_url_param(query_dict, "max_peaks", None)
     precursor_mz = _get_url_param(query_dict, "precursor_mz", '')
     charge = _get_url_param(query_dict, "charge", '')
     pm_tolerance = _get_url_param(query_dict, "pm_tolerance", 0.05)
@@ -384,8 +392,32 @@ def determine_task(search):
     delta_mass_below = _get_url_param(query_dict, "delta_mass_below", 130)
     delta_mass_above = _get_url_param(query_dict, "delta_mass_above", 200)
 
-    return [usi1, peaks, precursor_mz, charge, pm_tolerance, fragment_tolerance, cosine_threshold, min_matched_peaks, analog_select, delta_mass_below, delta_mass_above]
+    return [usi1, peaks, precursor_mz, charge, max_peaks, pm_tolerance, fragment_tolerance, cosine_threshold, min_matched_peaks, analog_select, delta_mass_below, delta_mass_above]
 
+
+def sort_and_filter_by_intensity(peaks_string, max_peaks=None):
+    if max_peaks is not None:
+        lines = peaks_string.strip().split('\n')
+        pairs = [tuple(map(float, line.split())) for line in lines if line.strip()]
+
+        # Create a dictionary to store the most intense peak for each rounded m/z
+        peak_dict = {}
+        for mz, intensity in pairs:
+            mz_rounded = round(mz)
+            if mz_rounded not in peak_dict or intensity > peak_dict[mz_rounded][1]:
+                peak_dict[mz_rounded] = (mz, intensity)
+
+        # Get the list of most intense peaks per rounded m/z and sort by intensity
+        unique_peaks = list(peak_dict.values())
+        sorted_peaks = sorted(unique_peaks, key=lambda x: x[1], reverse=True)[:max_peaks]
+
+        # Sort the final result by m/z
+        sorted_by_mz = sorted(sorted_peaks, key=lambda x: x[0])
+        filtered_peaks = '\n'.join(f"{mz} {intensity}" for mz, intensity in sorted_by_mz)
+    else:
+        filtered_peaks = peaks_string
+
+    return filtered_peaks
 
 
 @dash_app.callback([
@@ -398,6 +430,7 @@ def determine_task(search):
               [
                 State('usi1', 'value'),
                 State('peaks', 'value'),
+                State('max_peaks', 'value'),
                 State('precursor_mz', 'value'),
                 State('charge', 'value'),
                 State('pm_tolerance', 'value'),
@@ -413,6 +446,7 @@ def draw_output(
                 search_button_peaks,
                 usi1,
                 peaks,
+                max_peaks,
                 precursor_mz,
                 charge,
                 prec_mz_tol,
@@ -453,25 +487,70 @@ def draw_output(
         usi1 = usi1[0]
 
     if button_id == "search_button_usi":
-        cmd = 'cd microbe_masst/code/ && python masst_client.py \
-        --usi_or_lib_id "{}" \
-        --out_file "{}" \
-        --precursor_mz_tol {} \
-        --mz_tol {} \
-        --min_cos {} \
-        --min_matched_signals {} \
-        --analog_mass_below {} \
-        --analog_mass_above {} \
-        '.format(usi1,
-                out_file,
-                prec_mz_tol,
-                ms2_mz_tol,
-                min_cos,
-                min_matched_peaks,
-                analog_mass_below,
-                analog_mass_above
-                )
+        if max_peaks is not None:
+            # Retrieve peaks using the API
+            url = f"https://metabolomics-usi.gnps2.org/json/?usi1={usi1}"
+            response = requests.get(url)
+            data = response.json()
 
+            # Extract and filter peaks
+            spectrum_details = data.get("peaks", [])
+            peaks_list = "\n".join(f"{mz} {intensity}" for mz, intensity in spectrum_details)
+            filtered_peaks = sort_and_filter_by_intensity(peaks_list, max_peaks)
+
+            # Write filtered peaks to an MGF file
+            mgf_string = f"""BEGIN IONS
+PEPMASS={data.get('precursor_mz')}
+MSLEVEL=2
+CHARGE={data.get('precursor_charge', 1)}
+{filtered_peaks}
+END IONS\n"""
+            mgf_filename = os.path.join(output_temp, "input_spectra.mgf")
+            with open(mgf_filename, "w") as o:
+                o.write(mgf_string)
+
+            # Update the command to use the MGF file
+            cmd = 'cd microbe_masst/code/ && python masst_batch_client.py \
+            --in_file "{}" \
+            --out_file "{}" \
+            --parallel_queries 1 \
+            --precursor_mz_tol {} \
+            --mz_tol {} \
+            --min_cos {} \
+            --min_matched_signals {} \
+            --analog {} \
+            --analog_mass_below {} \
+            --analog_mass_above {} \
+            '.format(os.path.join("../..", mgf_filename),
+                     out_file,
+                     prec_mz_tol,
+                     ms2_mz_tol,
+                     min_cos,
+                     min_matched_peaks,
+                     use_analog,
+                     analog_mass_below,
+                     analog_mass_above
+                     )
+        else:
+            # Original command for USI search
+            cmd = 'cd microbe_masst/code/ && python masst_client.py \
+            --usi_or_lib_id "{}" \
+            --out_file "{}" \
+            --precursor_mz_tol {} \
+            --mz_tol {} \
+            --min_cos {} \
+            --min_matched_signals {} \
+            --analog_mass_below {} \
+            --analog_mass_above {} \
+            '.format(usi1,
+                     out_file,
+                     prec_mz_tol,
+                     ms2_mz_tol,
+                     min_cos,
+                     min_matched_peaks,
+                     analog_mass_below,
+                     analog_mass_above
+                     )
         # Tacking on the analog flag
         if use_analog:
             cmd += " --analog true"
@@ -480,6 +559,10 @@ def draw_output(
     elif button_id == "search_button_peaks":
         # Writing out the MGF file if we are using peaks
         print("USING PEAKS")
+        peaks = peaks.replace(",", " ").replace("\t", " ")
+        # extract m/z intensity, sort most intense first, and get the top N peaks if max_peaks is set
+        peaks = sort_and_filter_by_intensity(peaks, max_peaks)
+
         # default charge to 1 if not passed
         charge = '1' if charge is None else charge
         mgf_string = """BEGIN IONS
@@ -487,7 +570,7 @@ PEPMASS={}
 MSLEVEL=2
 CHARGE={}
 {}
-END IONS\n""".format(precursor_mz, charge, peaks.replace(",", " ").replace("\t", " "))
+END IONS\n""".format(precursor_mz, charge, peaks)
 
         mgf_filename = os.path.join(output_temp, "input_spectra.mgf")
         with open(mgf_filename, "w") as o:
@@ -570,6 +653,7 @@ def draw_spectrum(usi1, table_data, table_selected):
                     Input('peaks', 'value'),
                     Input('precursor_mz', 'value'),
                     Input('charge', 'value'),
+                    Input('max_peaks', 'value'),
                     Input('pm_tolerance', 'value'),
                     Input('fragment_tolerance', 'value'),
                     Input('cosine_threshold', 'value'),
@@ -578,12 +662,13 @@ def draw_spectrum(usi1, table_data, table_selected):
                     Input('delta_mass_below', 'value'),
                     Input('delta_mass_above', 'value'),
                 ])
-def draw_url(usi1, peaks, precursor_mz, charge, pm_tolerance, fragment_tolerance, cosine_threshold, min_matched_peaks, analog_select, delta_mass_below, delta_mass_above):
+def draw_url(usi1, peaks, precursor_mz, charge, max_peaks, pm_tolerance, fragment_tolerance, cosine_threshold, min_matched_peaks, analog_select, delta_mass_below, delta_mass_above):
     params = {}
     params["usi1"] = usi1
     params["peaks"] = peaks
     params["precursor_mz"] = precursor_mz
     params["charge"] = charge
+    params["max_peaks"] = max_peaks
     params["pm_tolerance"] = pm_tolerance
     params["fragment_tolerance"] = fragment_tolerance
     params["cosine_threshold"] = cosine_threshold
