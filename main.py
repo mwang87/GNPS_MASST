@@ -9,6 +9,7 @@ import dash_plantmasst
 import dash_metadatamasst
 import dash_personalcaremasst
 import dash_tissuemasst
+import dash_microbiomemasst
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port='5000')
