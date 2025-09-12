@@ -422,7 +422,7 @@ def sort_and_filter_by_intensity(peaks_string, max_peaks=None):
 
 
 @dash_app.callback([
-                Output('output', 'children')
+                Output('loading-output-23', 'children')
               ],
               [
                 Input('search_button_usi', 'n_clicks'),
