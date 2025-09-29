@@ -59,7 +59,7 @@ NAVBAR = dbc.Navbar(
         ),
         dbc.Nav(
             [
-                dbc.NavItem(dbc.NavLink("microbiomeMASST Dashboard - Version 2025.06.11", href="/microbiomemasst")),
+                dbc.NavItem(dbc.NavLink("microbiomeMASST Dashboard - Version 2025.09.29", href="/microbiomemasst")),
             ],
         navbar=True)
     ],
@@ -109,7 +109,7 @@ DATASELECTION_CARD = [
                     dbc.InputGroupText("Cosine Threshold"),
                     dbc.Input(id='cosine_threshold', type='number', placeholder="cosine_threshold", value=0.7, min=0.5, max=1.0, step=0.05),
                     dbc.InputGroupText("Minimum Matched Peaks"),
-                    dbc.Input(id='min_matched_peaks', type='number', placeholder="min_matched_peaks", value=3, min=1, max=100, step=1),
+                    dbc.Input(id='min_matched_peaks', type='number', placeholder="min_matched_peaks", value=4, min=1, max=100, step=1),
                 ],
                 className="mb-3",
             ),
@@ -221,8 +221,14 @@ EXAMPLES_DASHBOARD = [
     dbc.CardHeader(html.H5("Examples")),
     dbc.CardBody(
         [
-            html.A("Example 1", id="example_molecule1", href=create_example("CCMSLIB00006582258")),
+            html.A("Phe-CA", id="example_molecule1", href=create_example("CCMSLIB00011432553")),
             html.Br(),
+            html.A("Trp-CA", id="example_molecule2", href=create_example("CCMSLIB00011432558")),
+            html.Br(),
+            html.A("Arg-C18:1", id="example_molecule4", href=create_example("CCMSLIB00011436056")),
+            html.Br(),
+            # html.A("5-ASA-phenylpropionic acid", id="example_molecule5", href=create_example("CCMSLIB00016281670")),
+            # html.Br(),
         ]
     )
 ]
@@ -273,7 +279,7 @@ def determine_task(search):
     except:
         query_dict = {}
 
-    usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00006582258')
+    usi1 = _get_url_param(query_dict, "usi1", 'mzspec:GNPS:GNPS-LIBRARY:accession:CCMSLIB00011432553')
     peaks = _get_url_param(query_dict, "peaks", '')
     precursor_mz = _get_url_param(query_dict, "precursor_mz", '')
 
@@ -353,7 +359,7 @@ def draw_output(
         --min_matched_signals {} \
         --analog_mass_below {} \
         --analog_mass_above {} \
-        --database metabolomicspanrepo_index_latest \
+        --database metabolomicspanrepo_index_nightly \
         '.format(usi1,
                 out_file,
                 prec_mz_tol,
@@ -394,7 +400,7 @@ END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
         --analog {} \
         --analog_mass_below {} \
         --analog_mass_above {} \
-        --database metabolomicspanrepo_index_latest \
+        --database metabolomicspanrepo_index_nightly \
         '.format(os.path.join("../..", mgf_filename),
                 out_file,
                 prec_mz_tol,

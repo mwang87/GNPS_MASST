@@ -392,7 +392,7 @@ def draw_output(
         --min_matched_signals {} \
         --analog_mass_below {} \
         --analog_mass_above {} \
-        --database metabolomicspanrepo_index_latest \
+        --database metabolomicspanrepo_index_nightly \
         '.format(usi1,
                 out_file,
                 prec_mz_tol,
@@ -433,7 +433,7 @@ END IONS\n""".format(precursor_mz, peaks.replace(",", " ").replace("\t", " "))
         --analog {} \
         --analog_mass_below {} \
         --analog_mass_above {} \
-        --database metabolomicspanrepo_index_latest \
+        --database metabolomicspanrepo_index_nightly \
         '.format(os.path.join("../..", mgf_filename),
                 out_file,
                 prec_mz_tol,
