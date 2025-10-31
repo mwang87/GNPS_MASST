@@ -270,6 +270,7 @@ def create_example(lib_id, use_peaks=False):
 
 # Name, ID, Library ID, and use_peaks param
 examples_data = [
+    ("Sanjoinine A", "CCMSLIB00016358467"),
     ("Moroidin", "CCMSLIB00005435899"),
     ("Rutin", "CCMSLIB00003139483"),
     ("Isoschaftoside", "CCMSLIB00005778294"),
