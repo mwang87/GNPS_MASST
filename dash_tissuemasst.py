@@ -296,7 +296,12 @@ BODY = dbc.Container(
 dash_app.layout = html.Div(children=[NAVBAR, BODY])
 
 def _get_url_param(param_dict, key, default):
-    return param_dict.get(key, [default])
+    value = param_dict.get(key, default)
+    if isinstance(value, list):
+        if len(value) == 0:
+            return default
+        return value[0]
+    return value
 
 @dash_app.callback([
                 Output('usi1', 'value'),
