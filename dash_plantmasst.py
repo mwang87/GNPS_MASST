@@ -14,6 +14,8 @@ import requests
 
 from flask_caching import Cache
 from app import app
+import pandas as pd
+from dash import dash_table
 
 dash_app = dash.Dash(
     name="dashinterface",
@@ -31,6 +33,124 @@ cache = Cache(dash_app.server, config={
     'CACHE_THRESHOLD': 1000000
 })
 
+# ---- PlantMASST Explorer: pre-computed at module load ----
+_REPO_DIR = os.path.dirname(os.path.abspath(__file__))
+_df_files = pd.read_csv(os.path.join(_REPO_DIR, "microbe_masst", "trees", "plant_masst_tree", "plant_masst_table.csv"))
+_df_files["Taxa_NCBI"] = pd.to_numeric(_df_files["Taxa_NCBI"], errors="coerce")
+_df_files = _df_files.dropna(subset=["Taxa_NCBI"])
+_df_files["Taxa_NCBI"] = _df_files["Taxa_NCBI"].astype(int)
+
+_df_lineage = pd.read_csv(os.path.join(_REPO_DIR, "microbe_masst", "lineages", "plant_masst_lineages.csv"))
+
+FILE_LISTS = {
+    taxid: grp[["Filename", "MassIVE", "file_usi"]].to_dict("records")
+    for taxid, grp in _df_files.groupby("Taxa_NCBI")
+}
+
+_file_counts = _df_files.groupby("Taxa_NCBI").size().reset_index(name="file_count")
+
+_LINEAGE_RANKS = ["kingdom", "phylum", "class", "order", "family", "genus", "species"]
+_lineage_filled = _df_lineage.copy()
+for _col in _LINEAGE_RANKS:
+    _lineage_filled[_col] = _lineage_filled[_col].fillna("Unknown")
+
+_summary_filled = _file_counts.merge(
+    _lineage_filled[["Taxa_NCBI"] + _LINEAGE_RANKS], on="Taxa_NCBI", how="left",
+)
+for _col in _LINEAGE_RANKS:
+    _summary_filled[_col] = _summary_filled[_col].fillna("Unknown")
+
+_summary_filled = _summary_filled[_summary_filled["kingdom"] != "Unknown"].reset_index(drop=True)
+
+SPECIES_BY_TAXID = _summary_filled.set_index("Taxa_NCBI")["species"].to_dict()
+GENUS_BY_TAXID = _summary_filled.set_index("Taxa_NCBI")["genus"].to_dict()
+
+# Taxonomic levels the Explorer table can be grouped by, finest to coarsest.
+LEVEL_COLUMNS = ["Taxa_NCBI", "species", "genus", "family", "order", "class", "phylum", "kingdom"]
+LEVEL_LABELS = {
+    "Taxa_NCBI": "TaxID",
+    "species": "Species",
+    "genus": "Genus",
+    "family": "Family",
+    "order": "Order",
+    "class": "Class",
+    "phylum": "Phylum",
+    "kingdom": "Kingdom",
+}
+DEFAULT_LEVEL = "Taxa_NCBI"
+
+_NCBI_TAXONOMY_URL = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id="
+
+
+def _build_level(level):
+    """Build Explorer table records grouped at `level`, along with a
+    row_id -> [taxids] map (for the file modal) and a plain export dataframe.
+    Columns finer than `level` collapse to a placeholder since they no
+    longer map 1:1 to a single row.
+    """
+    idx = LEVEL_COLUMNS.index(level)
+    finer_cols = LEVEL_COLUMNS[:idx]
+    coarser_cols = [c for c in LEVEL_COLUMNS[idx + 1:] if c != "Taxa_NCBI"]
+
+    if level == "Taxa_NCBI":
+        grouped = _summary_filled.copy()
+        grouped["_taxids"] = grouped["Taxa_NCBI"].apply(lambda t: [t])
+    else:
+        agg = {"file_count": "sum", "Taxa_NCBI": lambda s: list(s)}
+        for c in coarser_cols:
+            agg[c] = "first"
+        grouped = _summary_filled.groupby(level, dropna=False).agg(agg).reset_index()
+        grouped = grouped.rename(columns={"Taxa_NCBI": "_taxids"})
+
+    grouped = grouped.sort_values("file_count", ascending=False).reset_index(drop=True)
+
+    records = []
+    export_rows = []
+    row_taxids = {}
+    row_label = {}
+    for i, row in grouped.iterrows():
+        rid = f"{level}::{i}"
+        row_taxids[rid] = [int(t) for t in row["_taxids"]]
+        row_label[rid] = row[level]
+
+        rec = {"id": rid, "file_count": int(row["file_count"])}
+        export_row = {"file_count": int(row["file_count"])}
+        for c in LEVEL_COLUMNS:
+            if c == "Taxa_NCBI":
+                if level == "Taxa_NCBI":
+                    taxid = int(row["Taxa_NCBI"])
+                    rec[c] = "[{0}]({1}{0})".format(taxid, _NCBI_TAXONOMY_URL)
+                    export_row[c] = taxid
+                else:
+                    rec[c] = "—"
+                    export_row[c] = ""
+                continue
+            if c in finer_cols:
+                rec[c] = "—"
+                export_row[c] = ""
+            else:
+                rec[c] = row[c]
+                export_row[c] = row[c]
+        records.append(rec)
+        export_rows.append(export_row)
+
+    export_df = pd.DataFrame(export_rows, columns=LEVEL_COLUMNS + ["file_count"])
+    return records, row_taxids, row_label, export_df
+
+
+LEVEL_TABLES = {}
+LEVEL_ROW_TAXIDS = {}
+LEVEL_ROW_LABELS = {}
+LEVEL_EXPORT_DFS = {}
+for _level in LEVEL_COLUMNS:
+    _records, _row_taxids, _row_label, _export_df = _build_level(_level)
+    LEVEL_TABLES[_level] = _records
+    LEVEL_ROW_TAXIDS[_level] = _row_taxids
+    LEVEL_ROW_LABELS[_level] = _row_label
+    LEVEL_EXPORT_DFS[_level] = _export_df
+
+EXPLORER_SUMMARY_RECORDS = LEVEL_TABLES[DEFAULT_LEVEL]
+EXPLORER_EXPORT_DF = LEVEL_EXPORT_DFS[DEFAULT_LEVEL]
 
 dash_app.index_string = """<!DOCTYPE html>
 <html>
@@ -62,7 +182,7 @@ NAVBAR = dbc.Navbar(
         dbc.Nav(
             [
                 dbc.NavItem(html.Img(src="https://wang-bioinformatics-lab.github.io/GNPS2_Documentation/img/logo/plantMASST_logo.svg", height="40px"), className="me-2"),
-                dbc.NavItem(dbc.NavLink("plantMASST Dashboard - Version 2026.01.14", href="/plantmasst")),
+                dbc.NavItem(dbc.NavLink("plantMASST Dashboard - Version 2026.07.01", href="/plantmasst")),
                 dbc.NavItem(dbc.NavLink("Documentation", href="https://wang-bioinformatics-lab.github.io/GNPS2_Documentation/plantmasst/", target="_blank")),
                 dbc.NavItem(dbc.NavLink("Contribute to plantMASST", href="https://wang-bioinformatics-lab.github.io/GNPS2_Documentation/plantmasst/#contributing-to-plantmasst", target="_blank"))
             ],
@@ -71,6 +191,7 @@ NAVBAR = dbc.Navbar(
     color="light",
     dark=False,
     sticky="top",
+    style={"paddingLeft": "2rem"},
 )
 
 DATASELECTION_CARD = [
@@ -346,27 +467,215 @@ EXAMPLES_DASHBOARD = [
     )
 ]
 
+EXPLORER_TABLE = dash_table.DataTable(
+    id="explorer-table",
+    columns=[
+        {"name": "TaxID (NCBI)", "id": "Taxa_NCBI", "presentation": "markdown"},
+        {"name": "Species",      "id": "species"},
+        {"name": "Genus",        "id": "genus"},
+        {"name": "Family",       "id": "family"},
+        {"name": "Order",        "id": "order"},
+        {"name": "Class",        "id": "class"},
+        {"name": "Phylum",       "id": "phylum"},
+        {"name": "Kingdom",      "id": "kingdom"},
+        {"name": "File Count",   "id": "file_count", "type": "numeric"},
+    ],
+    data=EXPLORER_SUMMARY_RECORDS,
+    sort_action="native",
+    filter_action="native",
+    filter_options={"case": "insensitive"},
+    page_action="native",
+    page_size=25,
+    style_table={"overflowX": "auto"},
+    style_cell={
+        "textOverflow": "ellipsis",
+        "overflow": "hidden",
+        "maxWidth": "220px",
+        "padding": "5px",
+        "fontSize": "13px",
+    },
+    style_header={
+        "backgroundColor": "#e8f5e9",
+        "fontWeight": "bold",
+        "borderBottom": "2px solid #4caf50",
+    },
+    style_data_conditional=[
+        {
+            "if": {"column_id": "file_count"},
+            "cursor": "pointer",
+            "color": "#1565c0",
+            "textDecoration": "underline",
+            "fontWeight": "600",
+        }
+    ],
+    tooltip_duration=None,
+    markdown_options={"link_target": "_blank"},
+)
+
+EXPLORER_MODAL = dbc.Modal(
+    [
+        dbc.ModalHeader(
+            html.H5(id="file-modal-title", className="modal-title"),
+            close_button=True,
+        ),
+        dbc.ModalBody(
+            html.Div([
+                html.Small(
+                    "Select rows then click Launch to run Classical Networking on those files.",
+                    className="text-muted mb-2 d-block",
+                ),
+                dash_table.DataTable(
+                    id="modal-file-table",
+                    columns=[
+                        {"name": "Filename", "id": "Filename"},
+                        {"name": "MassIVE",  "id": "MassIVE"},
+                        {"name": "File USI", "id": "file_usi"},
+                    ],
+                    data=[],
+                    row_selectable="multi",
+                    selected_rows=[],
+                    page_size=20,
+                    sort_action="native",
+                    filter_action="native",
+                    style_table={"overflowX": "auto"},
+                    style_cell={
+                        "textOverflow": "ellipsis",
+                        "overflow": "hidden",
+                        "maxWidth": "400px",
+                        "fontSize": "12px",
+                        "padding": "4px",
+                    },
+                ),
+            ])
+        ),
+        dbc.ModalFooter([
+            dbc.Button("Select All", id="modal-select-all", color="secondary", size="sm", n_clicks=0, className="me-2"),
+            dbc.Button(
+                "Launch Classical Networking / Library Search Workflow",
+                id="modal-networking-btn",
+                href="#",
+                target="_blank",
+                external_link=True,
+                color="success",
+                size="sm",
+                disabled=True,
+                className="me-auto",
+            ),
+            dbc.Button("Close", id="file-modal-close", color="secondary", n_clicks=0),
+        ]),
+    ],
+    id="file-modal",
+    size="xl",
+    is_open=False,
+    scrollable=True,
+)
+
 BODY = dbc.Container(
     [
         dcc.Location(id='url', refresh=False),
-        dbc.Row([
-            dbc.Col(
-                dbc.Card(LEFT_DASHBOARD),
-                className="col-9"
-            ),
-            dbc.Col(
-                [
-                    dbc.Card(CONTRIBUTORS_DASHBOARD),
-                    html.Br(),
-                    dbc.Card(EXAMPLES_DASHBOARD)
-                ],
-                className="col-3"
-            ),
-        ], style={"marginTop": 30}),
-        html.Br(),
-        dbc.Row([
-            dbc.Card(MIDDLE_DASHBOARD)
-        ])
+        EXPLORER_MODAL,
+        dbc.Tabs(
+            [
+                dbc.Tab(
+                    label="Search",
+                    tab_id="tab-search",
+                    children=[
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    dbc.Card(LEFT_DASHBOARD),
+                                    className="col-9"
+                                ),
+                                dbc.Col(
+                                    [
+                                        dbc.Card(CONTRIBUTORS_DASHBOARD),
+                                        html.Br(),
+                                        dbc.Card(EXAMPLES_DASHBOARD),
+                                    ],
+                                    className="col-3",
+                                ),
+                            ],
+                            style={"marginTop": 30},
+                        ),
+                        html.Br(),
+                        dbc.Row([dbc.Card(MIDDLE_DASHBOARD)]),
+                    ],
+                ),
+                dbc.Tab(
+                    label="plantMASST Explorer",
+                    tab_id="tab-explorer",
+                    children=[
+                        html.Br(),
+                        dbc.Card(
+                            [
+                                dbc.CardHeader(html.H5("plantMASST Explorer — Browse by Taxon")),
+                                dbc.CardBody(
+                                    [
+                                        dbc.Row(
+                                            [
+                                                dbc.Col(
+                                                    html.P(
+                                                        "Browse all plant taxa represented in the plantMASST database. "
+                                                        "Click any value in the File Count column to see the list of "
+                                                        "files associated with that taxon.",
+                                                        className="mb-0",
+                                                    ),
+                                                ),
+                                                dbc.Col(
+                                                    dbc.InputGroup(
+                                                        [
+                                                            dbc.InputGroupText("Group counts by"),
+                                                            dbc.Select(
+                                                                id="explorer-level-select",
+                                                                options=[
+                                                                    {"label": LEVEL_LABELS[c], "value": c}
+                                                                    for c in LEVEL_COLUMNS
+                                                                ],
+                                                                value=DEFAULT_LEVEL,
+                                                            ),
+                                                        ],
+                                                        size="sm",
+                                                    ),
+                                                    width="auto",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Button(
+                                                        "Download Table (TSV)",
+                                                        id="explorer-download-btn",
+                                                        color="primary",
+                                                        size="sm",
+                                                        n_clicks=0,
+                                                    ),
+                                                    width="auto",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Button(
+                                                        "Download Filtered Table (TSV)",
+                                                        id="explorer-download-filtered-btn",
+                                                        color="secondary",
+                                                        size="sm",
+                                                        n_clicks=0,
+                                                    ),
+                                                    width="auto",
+                                                    className="ms-auto text-end",
+                                                ),
+                                            ],
+                                            className="align-items-center mb-2",
+                                        ),
+                                        dcc.Download(id="explorer-download"),
+                                        dcc.Download(id="explorer-download-filtered"),
+                                        EXPLORER_TABLE,
+                                    ]
+                                ),
+                            ]
+                        ),
+                    ],
+                ),
+            ],
+            id="main-tabs",
+            active_tab="tab-search",
+            style={"marginTop": "20px"},
+        ),
     ],
     fluid=True,
     className="",
@@ -768,6 +1077,139 @@ dash_app.clientside_callback(
         State('query_link', 'href'),
     ]
 )
+
+@dash_app.callback(
+    [
+        Output("file-modal", "is_open"),
+        Output("modal-file-table", "data"),
+        Output("file-modal-title", "children"),
+        Output("modal-file-table", "selected_rows"),
+        Output("modal-file-table", "filter_query"),
+        Output("explorer-table", "active_cell"),
+    ],
+    [
+        Input("explorer-table", "active_cell"),
+        Input("file-modal-close", "n_clicks"),
+        Input("file-modal", "is_open"),
+    ],
+    prevent_initial_call=True,
+)
+def toggle_file_modal(active_cell, close_clicks, is_open):
+    triggered = ctx.triggered_id
+
+    if triggered == "file-modal-close":
+        # Clear active_cell/filter so clicking the same cell again after
+        # closing will register as a change and re-open the modal fresh.
+        return False, dash.no_update, dash.no_update, [], "", None
+
+    if triggered == "file-modal":
+        # is_open changed without going through file-modal-close: this is the
+        # built-in header "x" button, a backdrop click, or Escape, none of
+        # which run our Python callback on their own. Treat a resulting
+        # False the same as an explicit close so state doesn't go stale.
+        if is_open:
+            return (dash.no_update,) * 6
+        return dash.no_update, dash.no_update, dash.no_update, [], "", None
+
+    if triggered == "explorer-table" and active_cell and active_cell.get("column_id") == "file_count":
+        rid = active_cell["row_id"]
+        level = rid.split("::", 1)[0]
+        taxids = LEVEL_ROW_TAXIDS.get(level, {}).get(rid, [])
+        label = LEVEL_ROW_LABELS.get(level, {}).get(rid, "")
+
+        if level == "Taxa_NCBI":
+            taxid = taxids[0] if taxids else label
+            extra = SPECIES_BY_TAXID.get(taxid) or GENUS_BY_TAXID.get(taxid) or ""
+            extra = "" if extra == "Unknown" else extra
+            title = f"Files for TaxID {taxid}" + (f" — {extra}" if extra else "")
+        else:
+            title = f"Files for {LEVEL_LABELS.get(level, level)}: {label}"
+
+        files = []
+        for taxid in taxids:
+            files.extend(FILE_LISTS.get(taxid, []))
+
+        return True, files, title, [], "", dash.no_update
+
+    return (dash.no_update,) * 6
+
+
+@dash_app.callback(
+    Output("explorer-table", "data"),
+    Input("explorer-level-select", "value"),
+)
+def update_explorer_level(level):
+    return LEVEL_TABLES.get(level, LEVEL_TABLES[DEFAULT_LEVEL])
+
+
+@dash_app.callback(
+    Output("explorer-download", "data"),
+    Input("explorer-download-btn", "n_clicks"),
+    prevent_initial_call=True,
+)
+def download_explorer_table(n_clicks):
+    return dcc.send_data_frame(
+        EXPLORER_EXPORT_DF.to_csv, "plantmasst_explorer_table.tsv", sep="\t", index=False
+    )
+
+
+@dash_app.callback(
+    Output("explorer-download-filtered", "data"),
+    Input("explorer-download-filtered-btn", "n_clicks"),
+    State("explorer-level-select", "value"),
+    prevent_initial_call=True,
+)
+def download_explorer_filtered_table(n_clicks, level):
+    export_df = LEVEL_EXPORT_DFS.get(level, LEVEL_EXPORT_DFS[DEFAULT_LEVEL])
+    filename = f"plantmasst_explorer_table_{level.lower()}.tsv"
+    return dcc.send_data_frame(export_df.to_csv, filename, sep="\t", index=False)
+
+
+@dash_app.callback(
+    Output("modal-file-table", "selected_rows"),
+    Input("modal-select-all", "n_clicks"),
+    [State("modal-file-table", "derived_virtual_indices"),
+     State("modal-file-table", "data"),
+     State("modal-file-table", "selected_rows")],
+    prevent_initial_call=True,
+)
+def toggle_select_all(n_clicks, virtual_indices, data, selected_rows):
+    # derived_virtual_indices holds the indices (into data) of rows that
+    # currently pass the table's filter; fall back to all rows if unfiltered.
+    visible_indices = virtual_indices if virtual_indices is not None else list(range(len(data or [])))
+    if visible_indices and set(selected_rows or []) != set(visible_indices):
+        return list(visible_indices)
+    return []
+
+
+@dash_app.callback(
+    [Output("modal-networking-btn", "href"),
+     Output("modal-networking-btn", "disabled")],
+    Input("modal-file-table", "selected_rows"),
+    State("modal-file-table", "data"),
+    prevent_initial_call=True,
+)
+def update_networking_link(selected_rows, data):
+    if not selected_rows or not data:
+        return "#", True
+    usis = []
+    for i in selected_rows:
+        if i >= len(data):
+            continue
+        row = data[i]
+        usi = row["file_usi"]
+        # Append the file extension (from the Filename column) to the USI so
+        # the downstream USI hash points at the actual file.
+        ext = os.path.splitext(row.get("Filename", ""))[1]
+        if ext and not usi.endswith(ext):
+            usi += ext
+        usis.append(usi)
+    if not usis:
+        return "#", True
+    usi_string = "\\n".join(usis)
+    fragment = '{{"usi": "{}"}}'.format(usi_string).replace('"', '%22').replace(' ', '%20')
+    return "https://gnps2.org/workflowinput?workflowname=classical_networking_workflow#" + fragment, False
+
 
 # API
 @app.route("/plantmasst/results")

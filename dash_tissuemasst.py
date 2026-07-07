@@ -226,7 +226,7 @@ EXAMPLES_DASHBOARD = [
             html.Br(),
             html.A("Ampicillin", id="example_molecule3", href=create_example("CCMSLIB00006679903")),
             html.Br(),
-            html.A("Cadaverine-C2:0", id="example_molecule3", href=create_example("CCMSLIB00012715404")),
+            html.A("Cadaverine-C2:0", id="example_molecule4", href=create_example("CCMSLIB00012715404")),
             html.Br(),
         ]
     )
