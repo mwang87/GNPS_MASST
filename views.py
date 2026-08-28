@@ -58,7 +58,7 @@ def submit():
     if request.form["analogsearch"] == "Yes":
         analog_search = "1"
 
-    if len(request.form["email"]) > 2:
+    if len(request.form.get("email", "")) > 2:
         email = request.form["email"]
 
     if len(request.form["login"]) > 2 and len(request.form["password"]) > 2:
